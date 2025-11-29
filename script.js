@@ -4,52 +4,46 @@
    const AudioController = {
     ctx: null,
     bgmElement: null,
-    isMuted: false, // デフォルトはONにしておく（ユーザーのアクション待ち）
+    isMuted: false, 
     initialized: false,
 
-    // ユーザーが最初にボタンを押した時に呼ぶ
     init() {
         if (this.initialized) return;
 
+        // iOS対応: webkitAudioContext
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         this.ctx = new AudioContext();
         this.bgmElement = document.getElementById('bgm-audio');
         
-        // BGMトグルボタンの設定
         const btn = document.getElementById('bgm-toggle');
-        btn.addEventListener('click', () => {
+        // タッチデバイス対応
+        const clickEvent = 'ontouchend' in document ? 'touchend' : 'click';
+        btn.addEventListener(clickEvent, (e) => {
+            e.preventDefault(); // ゴーストクリック防止
             this.toggleSound();
         });
 
         this.initialized = true;
     },
 
-    // ユーザー操作の瞬間にAudioContextを「再開」させる魔法の呪文
     async resumeContext() {
         if (!this.ctx) this.init();
-        
         if (this.ctx.state === 'suspended') {
             await this.ctx.resume();
         }
-        
-        // BGM再生試行
         if (!this.isMuted && this.bgmElement && this.bgmElement.paused) {
             this.bgmElement.volume = 0.3;
-            this.bgmElement.play().catch(e => console.log("BGM Play prevented (Click first):", e));
+            this.bgmElement.play().catch(e => console.log("BGM Play prevented:", e));
             this.updateBtnState(true);
         }
     },
 
     toggleSound() {
         if (!this.ctx) this.init();
-
-        const btn = document.getElementById('bgm-toggle');
         if (this.isMuted) {
-            // ONにする操作
             this.isMuted = false;
-            this.resumeContext(); // ここでもResumeを試みる
+            this.resumeContext();
         } else {
-            // OFFにする操作
             this.isMuted = true;
             if(this.bgmElement) this.bgmElement.pause();
             this.updateBtnState(false);
@@ -67,12 +61,8 @@
         }
     },
 
-    // ファミコン風SE生成 (Oscillator) - ファイル不要で必ず鳴る
     playSe(type) {
-        // コンテキストがない、またはミュート時は鳴らさない
         if (!this.ctx || this.isMuted) return;
-        
-        // ここでも念の為resumeを呼ぶ（Safari対策）
         if (this.ctx.state === 'suspended') this.ctx.resume();
 
         const osc = this.ctx.createOscillator();
@@ -84,65 +74,86 @@
         const now = this.ctx.currentTime;
 
         if (type === 'select') {
-            // ピッ (決定音)
-            osc.type = 'square'; // ファミコンらしい矩形波
+            // ピッ（決定）
+            osc.type = 'square';
             osc.frequency.setValueAtTime(440, now);
             osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
-            
             gainNode.gain.setValueAtTime(0.1, now);
             gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
-            
             osc.start(now);
             osc.stop(now + 0.08);
 
         } else if (type === 'move') {
-            // カッ (文字送り/移動)
+            // カッ（移動）
             osc.type = 'triangle';
             osc.frequency.setValueAtTime(220, now);
-            
             gainNode.gain.setValueAtTime(0.05, now);
             gainNode.gain.linearRampToValueAtTime(0, now + 0.05);
-            
             osc.start(now);
             osc.stop(now + 0.05);
 
         } else if (type === 'item') {
-            // ジャララーン (アイテム発見) - アルペジオ
+            // ジャララーン（発見）
             osc.type = 'square';
-            
-            // ド・ミ・ソ・ド
             osc.frequency.setValueAtTime(523.25, now); 
             osc.frequency.setValueAtTime(659.25, now + 0.1); 
             osc.frequency.setValueAtTime(783.99, now + 0.2); 
             osc.frequency.setValueAtTime(1046.50, now + 0.3); 
-            
             gainNode.gain.setValueAtTime(0.1, now);
             gainNode.gain.linearRampToValueAtTime(0, now + 0.6);
-            
             osc.start(now);
             osc.stop(now + 0.6);
 
-        } else if (type === 'start') {
-            // ブォーン (開始音)
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(110, now);
-            osc.frequency.linearRampToValueAtTime(880, now + 0.3);
-            
+        } else if (type === 'meow') {
+            // ★追加: ニャー（猫）
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(800, now);
+            osc.frequency.linearRampToValueAtTime(1200, now + 0.1); 
+            osc.frequency.linearRampToValueAtTime(800, now + 0.3); 
             gainNode.gain.setValueAtTime(0.1, now);
-            gainNode.gain.linearRampToValueAtTime(0, now + 0.5);
-            
+            gainNode.gain.linearRampToValueAtTime(0, now + 0.4);
             osc.start(now);
-            osc.stop(now + 0.5);
+            osc.stop(now + 0.4);
+
+        } else if (type === 'charm') {
+             // ★追加: キラリーン（お色気/魅力成功）
+             osc.type = 'sine';
+             osc.frequency.setValueAtTime(1000, now);
+             osc.frequency.exponentialRampToValueAtTime(2000, now + 0.5);
+             gainNode.gain.setValueAtTime(0, now);
+             gainNode.gain.linearRampToValueAtTime(0.2, now + 0.2);
+             gainNode.gain.linearRampToValueAtTime(0, now + 0.8);
+             osc.start(now);
+             osc.stop(now + 0.8);
+
+        } else if (type === 'gameover') {
+            // デデデーン...
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(100, now);
+            osc.frequency.linearRampToValueAtTime(30, now + 1.2); 
+            gainNode.gain.setValueAtTime(0.3, now);
+            gainNode.gain.linearRampToValueAtTime(0, now + 1.2);
+            osc.start(now);
+            osc.stop(now + 1.2);
+
+        } else if (type === 'start') {
+             // ブォーン
+             osc.type = 'sawtooth';
+             osc.frequency.setValueAtTime(110, now);
+             osc.frequency.linearRampToValueAtTime(880, now + 0.3);
+             gainNode.gain.setValueAtTime(0.1, now);
+             gainNode.gain.linearRampToValueAtTime(0, now + 0.5);
+             osc.start(now);
+             osc.stop(now + 0.5);
         }
     }
 };
 
 /* =========================================
-   Game Logic
+   Game Data (Items & Scenes)
    ========================================= */
 let gameState = {
-    currentDay: 1,
-    currentLocation: 0,
+    currentSceneId: "start",
     heartPoints: 0, 
     diaryEntries: [],
     metCharacters: {},  
@@ -150,165 +161,489 @@ let gameState = {
     totalTreasures: 0   
 };
 
-// 証拠品データ
+// アイテムデータ
 const treasureData = {
-    "handkerchief": {
-        name: "アカイ ハンカチ",
-        icon: "🟥",
-        description: "イニシャル『R』ガ シシュウ サレテイル。",
-        rarity: "common"
+    "cat_snack": { 
+        name: "マタタビ スナック", 
+        icon: "🐟", 
+        description: "ネコ ガ ダイスキ ナ オヤツ。イイコト ガ アルカモ？", 
+        rarity: "common" 
     },
-    "strangeGem": {
-        name: "アオイ カケラ",
-        icon: "💎",
-        description: "コワレタ ホウセキ ノ イチブ ノ ヨウダ。",
+    "wire": { 
+        name: "サビタ ハリガネ", 
+        icon: "➰", 
+        description: "ナニカ ノ カギ ヲ アケル ノニ ツカエソウ ダ。", 
+        rarity: "common" 
+    },
+    "memo": { 
+        name: "アンゴウ メモ", 
+        icon: "📝", 
+        description: "『1192』 ト カイテアル。ツクエ ノ バンゴウ カ？", 
+        rarity: "common" 
+    },
+    "secretLetter": { 
+        name: "ハンニン ノ テガミ", 
+        icon: "✉️", 
+        description: "『コンヤ ミナト デ ト リ ヒ キ ダ』 ト カイテアル。", 
+        rarity: "epic" 
+    },
+    "lucky_coin": {
+        name: "ラッキー コイン",
+        icon: "🪙",
+        description: "ネコ ガ クレタ ピカピカ ノ コイン。",
         rarity: "rare"
     },
-    "muddyBoots": {
-        name: "ドロ ノ ブーツ",
-        icon: "👢",
-        description: "サイズ 28cm。ツチ ガ マダ シメッテイル。",
-        rarity: "common"
+    "strangeGem": { 
+        name: "アオイ カケラ", 
+        icon: "💎", 
+        description: "トテモ キレイナ アオイ イシ ノ カケラ。", 
+        rarity: "rare" 
     },
-    "secretLetter": {
-        name: "ナゾ ノ テガミ",
-        icon: "✉️",
-        description: "『ツキ ガ ノボル コロ ミナト デ...』",
-        rarity: "epic"
-    },
-    "goldenKey": {
-        name: "オウゴン ノ カギ",
-        icon: "🗝️",
-        description: "フルビタ ヤカタ ノ カギ ラスイ。",
-        rarity: "legendary"
+    "handkerchief": { 
+        name: "アカイ ハンカチ", 
+        icon: "🟥", 
+        description: "イニシャル 『R』 ガ シシュウ サレテイル。", 
+        rarity: "common" 
     }
 };
 
-// シナリオ：散歩中に事件に巻き込まれる
-const days = [
-    {
-        day: 1,
-        locations: [
-            {
-                name: "ヘイワ ナ コウエン",
-                icon: "🌳",
-                story: "イツモ ドオリ ノ サンポ ミチ。<br>トリ ノ サエズリ ガ キコエル。<br>キョウ ハ ナニモ オキラナイ... ハズダッタ。",
-                choices: [{ text: "サキ ニ ススム", action: "next" }]
+/* =========================================
+   シナリオデータ (大幅増量: 工数1.5倍)
+   - 動物要素: 迷い猫
+   - お色気(マイルド): 美人のお姉さん、警官へのウィンク
+   ========================================= */
+const scenes = {
+    // -------------------------------------------------
+    // シーン1: プロローグ & 公園（動物分岐追加）
+    // -------------------------------------------------
+    "start": {
+        name: "ヘイワ ナ コウエン",
+        icon: "🌳",
+        story: "イツモ ドオリ ノ サンポ ミチ。<br>「ニャ～ン...」<br>ドコカ カラ ナキゴエ ガ キコエル。",
+        choices: [
+            { text: "コウエン ノ オク ヲ ミル", action: "move", target: "park_bush" },
+            { text: "サキ ニ ススム", action: "move", target: "mansion_front" }
+        ]
+    },
+    "park_bush": {
+        name: "シゲミ ノ ナカ",
+        icon: "🐈",
+        story: "シゲミ ノ ナカ ニ マヨイ ネコ ガ イタ。<br>オナカ ヲ スカセテ イル ヨウダ。<br>ナニカ タベモノ ガ アレバ...",
+        choices: [
+            // おやつを持っている場合
+            { text: "スナック ヲ アゲル", action: "itemCheck", item: "cat_snack", targetTrue: "cat_happy", targetFalse: "cat_ignore" },
+            { text: "ナデテ ミル", action: "move", target: "cat_angry" },
+            { text: "モト ノ ミチ ヘ", action: "move", target: "start" }
+        ]
+    },
+    "cat_ignore": {
+        name: "シゲミ ノ ナカ",
+        icon: "🐈",
+        story: "ネコ ハ アナタ ヲ ジッと ミテイル。<br>タベモノ ヲ モッテナイ ト ワカル ト、<br>プイッ ト ムコウ ヲ ムイテ シマッタ。",
+        choices: [
+            { text: "コンビニ ヘ イク", action: "move", target: "convenience_store" },
+            { text: "サキ ニ ススム", action: "move", target: "mansion_front" }
+        ]
+    },
+    "cat_angry": {
+        name: "シゲミ ノ ナカ",
+        icon: "💢",
+        story: "「シャーッ！！」<br>イキナリ テ ヲ ダシタラ ヒッカカレタ！<br>IQ（ライフ）ガ ヘッテ シマッタ...",
+        choices: [
+            { text: "イタイ...", action: "damage", amount: 10, target: "start" }
+        ]
+    },
+    "convenience_store": {
+        name: "コンビニ",
+        icon: "🏪",
+        story: "コンビニ ニ ヨッタ。<br>ネコ ガ スキソウ ナ 『マタタビ スナック』 ガ ウッテイル！",
+        choices: [
+            { text: "スナック ヲ カウ", action: "searchTreasure", treasure: "cat_snack", target: "park_bush" }
+        ]
+    },
+    "cat_happy": {
+        name: "シゲミ ノ ナカ",
+        icon: "😻",
+        story: "ネコ「ニャウ〜ン♪」<br>ネコ ハ オイシソウ ニ オヤツ ヲ タベタ。<br>オレイ ニ 『キラキラ ヒカル モノ』 ヲ クレタ！",
+        choices: [
+            { text: "ヒロウ", action: "searchTreasure", treasure: "lucky_coin", target: "park_done" }
+        ]
+    },
+    "park_done": {
+        name: "コウエン",
+        icon: "🌳",
+        story: "ネコ ハ マンゾク シテ サッテ イッタ。<br>サア、サンポ ヲ ツヅケヨウ。",
+        choices: [
+            { text: "サキ ニ ススム", action: "move", target: "mansion_front" }
+        ]
+    },
+
+    // -------------------------------------------------
+    // シーン2: 屋敷前（お色気コメディ追加）
+    // -------------------------------------------------
+    "mansion_front": {
+        name: "ゴウテイ ノ マエ",
+        icon: "🏰",
+        story: "パトカー ガ トマッテイル。<br>「キセイセン カラ ハイラナイデ！」<br>イカツ イ ケイカン ガ ミハッテ イル。",
+        choices: [
+            { text: "ジジョウ ヲ キク", action: "move", target: "police_talk" },
+            { text: "ウラグチ ニ マワル", action: "move", target: "mansion_back" }
+        ]
+    },
+    "police_talk": {
+        name: "ケイカン",
+        icon: "👮",
+        story: "ケイカン「ココハ タチイリ キンシ ダ！」<br>トテモ キビシ ソウダ。<br>ナン トカ シテ ジョウホウ ヲ キキダセ ナイカ...",
+        choices: [
+            { text: "マジメ ニ キク", action: "move", target: "mansion_crowd" },
+            { text: "イロジカケ スル", action: "move", target: "police_charm_fail" } // お色気選択肢
+        ]
+    },
+    "police_charm_fail": {
+        name: "ケイカン",
+        icon: "💦",
+        story: "アナタ ハ チョット セクシー ニ ウインク シテミタ。<br>ケイカン「...ナニ ヲ シテイルンダ キミ ハ」<br>ドンビキ サレテ シマッタ！！ ハズカシイ！",
+        choices: [
+            { text: "ニゲダス", action: "move", target: "mansion_back" }
+        ]
+    },
+    "mansion_crowd": {
+        name: "ヤジウマ",
+        icon: "🗣️",
+        story: "ヤジウマ「ゴウトウ ダッテヨ！<br>コノ ヤカタ ノ 『カホウ』 ガ ヌスマレタ ラシイ ゼ」<br>ハンニン ハ マダ チカク ニ イル カモ...。",
+        choices: [
+            { text: "ウラグチ ニ マワル", action: "move", target: "mansion_back" }
+        ]
+    },
+
+    // -------------------------------------------------
+    // シーン3: 裏庭 & 物置（ほぼ維持）
+    // -------------------------------------------------
+    "mansion_back": {
+        name: "ヤカタ ノ ウラニワ",
+        icon: "🌿",
+        story: "ウラニワ ニ ハ イヌゴヤ ガ アル。<br>バンケン ハ... ネル ヲ シテイル ヨウダ。<br>マド ニハ カギ ガ カカッテ イル。",
+        choices: [
+            { text: "ハリガネ ヲ ツカウ", action: "itemCheck", item: "wire", targetTrue: "mansion_inside_entry", targetFalse: "mansion_back_locked" },
+            { text: "モノオキ ヲ ミル", action: "move", target: "garden_shed" },
+            { text: "バンケン ヲ オコス", action: "move", target: "bad_end_dog" } // 動物バッドエンド
+        ]
+    },
+    "bad_end_dog": {
+        name: "ウラニワ",
+        icon: "🐕",
+        story: "ワンワン！！<br>オドロイタ イヌ ニ オイカケマワ サレタ！<br>サンポ ドコロ デハ ナイ。",
+        choices: [
+            { text: "タイトル ヘ モドル", action: "restart" }
+        ]
+    },
+    "mansion_back_locked": {
+        name: "ヤカタ ノ ウラニワ",
+        icon: "🔒",
+        story: "カギ ガ カカッテ イテ アカナイ。<br>ホソナガイ カネノボウ デモ アレバ...。<br>モノオキ デモ サガシテ ミルカ。",
+        choices: [
+            { text: "モノオキ ヲ ミル", action: "move", target: "garden_shed" }
+        ]
+    },
+    "garden_shed": {
+        name: "モノオキ",
+        icon: "🏚️",
+        story: "ホコリ マミレ ノ モノオキ ダ。<br>ガラクタ ノ ナカ ニ ナニカ ツカエソウ ナ モノ ハ...。",
+        choices: [
+            { text: "ガラクタ ヲ アサル", action: "searchTreasure", treasure: "wire", target: "mansion_back_retry" }
+        ]
+    },
+    "mansion_back_retry": {
+        name: "ヤカタ ノ ウラニワ",
+        icon: "🌿",
+        story: "ハリガネ ヲ テ ニ イレタ。<br>コレ デ マド ノ カギ ヲ アケラレル カモ シレナイ。",
+        choices: [
+            { text: "ハリガネ ヲ ツカウ", action: "move", target: "mansion_inside_entry" }
+        ]
+    },
+    "mansion_inside_entry": {
+        name: "ヤカタ ノ ウラニワ",
+        icon: "🔓",
+        story: "カチャリ...。<br>カギ ガ アイタ！<br>コッソリ ナカ ニ ハイロウ。",
+        choices: [
+            { text: "ナカ ニ ハイル", action: "move", target: "mansion_inside_hall" }
+        ]
+    },
+
+    // -------------------------------------------------
+    // シーン4: 家の中（探索）
+    // -------------------------------------------------
+    "mansion_inside_hall": {
+        name: "ヤカタ ノ ナカ",
+        icon: "🏠",
+        story: "シツナイ ハ クライ...。<br>ショサイ ノ ツクエ ニハ 『4ケタ ノ ダイヤル』。<br>アンゴウ ガ ワカラナイ。",
+        choices: [
+            { text: "アンゴウ ヲ ニュウリョク", action: "itemCheck", item: "memo", targetTrue: "mansion_inside_desk", targetFalse: "mansion_inside_locked" },
+            { text: "ショクドウ ヲ シラベル", action: "move", target: "mansion_dining" },
+            { text: "オク ノ ヘヤ ヲ ミル", action: "move", target: "bad_end_encounter" }
+        ]
+    },
+    "mansion_inside_locked": {
+        name: "ヤカタ ノ ナカ",
+        icon: "🔒",
+        story: "ダメダ...。テキトウ ニ マワシテモ アカナイ。<br>ドコカ ニ ヒント ガ アル ハズダ。",
+        choices: [
+            { text: "ショクドウ ヲ シラベル", action: "move", target: "mansion_dining" }
+        ]
+    },
+    "mansion_dining": {
+        name: "ショクドウ",
+        icon: "🍽️",
+        story: "テーブル ノ ウエ ニ メモ ガ オイテアル。<br>『ショサイ ノ バンゴウ : 1192』<br>イイクニ ツクロウ... コレダ！",
+        choices: [
+            { text: "メモ ヲ トル", action: "searchTreasure", treasure: "memo", target: "mansion_inside_retry" }
+        ]
+    },
+    "mansion_inside_retry": {
+        name: "ヤカタ ノ ナカ",
+        icon: "🏠",
+        story: "アンゴウ ハ ワカッタ。<br>コレデ ツクエ ヲ アケラレル。",
+        choices: [
+            { text: "アンゴウ ヲ ニュウリョク", action: "move", target: "mansion_inside_desk" }
+        ]
+    },
+    "mansion_inside_desk": {
+        name: "ショサイ",
+        icon: "📂",
+        story: "カチャリ。<br>ヒキダシ ノ ナカ ニ ハンニン ノ テガミ ガ アッタ！",
+        choices: [
+            { text: "テガミ ヲ ヨム", action: "searchTreasure", treasure: "secretLetter", target: "mansion_inside_done" }
+        ]
+    },
+    "mansion_inside_done": {
+        name: "ヤカタ ノ ナカ",
+        icon: "✉️",
+        story: "テガミ「コンヤ ミナト ノ ソウコ デ ブツ ヲ ワタス」<br>ハンニン ハ ミナト ニ イル！",
+        choices: [
+            { text: "エキマエ ヘ イソグ", action: "move", target: "station" }
+        ]
+    },
+    "bad_end_encounter": {
+        name: "ロウカ",
+        icon: "😱",
+        story: "「ダレダ！ ソコニ イルノハ！」<br>ソウサチュウ ノ ケイジ ニ ミツカッテ シマッタ。",
+        choices: [
+            { text: "タイトル ヘ モドル", action: "restart" }
+        ]
+    },
+
+    // -------------------------------------------------
+    // シーン5: 駅前（美人のお姉さんイベント追加）
+    // -------------------------------------------------
+    "station": {
+        name: "エキ マエ",
+        icon: "🚉",
+        story: "エキ マエ ハ ヒト デ イッパイ ダ。<br>ベンチ ニ キレイ ナ オネエサン ガ スワッテ イル。<br>ナニカ コマッテ イル ヨウダ。",
+        choices: [
+            { text: "ハナシ カケル", action: "move", target: "station_lady" },
+            { text: "ロジアウラ ヲ トオル", action: "move", target: "alley" }
+        ]
+    },
+    "station_lady": {
+        name: "ナゾ ノ ビジョ",
+        icon: "👩",
+        story: "オネエサン「アラ、カワイイ タンテイ サン ね」<br>トテモ イイ ニオイ ガ スル...。<br>カノジョ ハ ハンカチ ヲ オトシタ。",
+        choices: [
+            { text: "カッコツケテ ヒロウ", action: "charmCheck", target: "station_lady_charm" }, // お色気判定
+            { text: "フツウ ニ ヒロウ", action: "searchTreasure", treasure: "handkerchief", target: "station_lady_normal" }
+        ]
+    },
+    "station_lady_charm": {
+        name: "ナゾ ノ ビジョ",
+        icon: "💖",
+        story: "アナタ ハ キザ ニ ハンカチ ヲ ヒロイ アゲタ。<br>オネエサン「フフッ、ステキ」<br>カノジョ ハ ホホエンデ サッテ イッタ。<br>IQ ガ アガッタ キガスル！",
+        choices: [
+            // お姉さんからハンカチを貰ったことになる
+            { text: "ロジアウラ ヘ", action: "searchTreasure", treasure: "handkerchief", target: "alley" } 
+        ]
+    },
+    "station_lady_normal": {
+        name: "エキ マエ",
+        icon: "🚉",
+        story: "オネエサン「アリガトウ。コレハ アゲルワ」<br>ハンカチ ヲ モラッタ。<br>イニシャル 『R』... ダレダロウ？",
+        choices: [
+            { text: "ロジアウラ ヘ", action: "move", target: "alley" }
+        ]
+    },
+
+    // -------------------------------------------------
+    // シーン6: 路地裏
+    // -------------------------------------------------
+    "alley": {
+        name: "ロジアウラ",
+        icon: "🗑️",
+        story: "ゴミバコ ガ タオサレテ イル。<br>ナニカ ステテ イッタ カモ シレナイ。",
+        choices: [
+            { text: "ゴミバコ ヲ シラベル", action: "searchTreasure", treasure: "strangeGem", target: "alley_checked" },
+            { text: "ゴミバコ ヲ ケトバス", action: "move", target: "bad_end_ambush" },
+            { text: "サキ ニ ススム", action: "move", target: "warehouse" }
+        ]
+    },
+    "bad_end_ambush": {
+        name: "ロジアウラ",
+        icon: "💥",
+        story: "ドカッ！！<br>オト ニ オドロイタ ノライヌ ノ ムレ ニ オソワレタ！<br>...ビョウイン オクリ ニ ナッタ。",
+        choices: [
+            { text: "タイトル ヘ モドル", action: "restart" }
+        ]
+    },
+    "alley_checked": {
+        name: "ロジアウラ",
+        icon: "💎",
+        story: "コレハ... ウワサ ノ 『アオイ ホウセキ』 ノ カケラ ダ！<br>コレデ ショウコ ハ ソロッタ。",
+        choices: [
+            { text: "ミナト ヘ ムカウ", action: "move", target: "warehouse" }
+        ]
+    },
+
+    // -------------------------------------------------
+    // シーン7: クライマックス
+    // -------------------------------------------------
+    "warehouse": {
+        name: "ミナト ノ ソウコ",
+        icon: "⚓",
+        story: "アヤシイ オトコ ガ イタ。<br>オトコ「トリヒキ アイテ カ？ レイ ノ ブツ ハ モッテ キタノカ？」<br>カンチガイ シテイル ヨウダ。",
+        choices: [
+            { text: "ショウコ ヲ ツキツケル", action: "move", target: "final_confrontation" }
+        ]
+    },
+    "final_confrontation": {
+        name: "ケッチャク",
+        icon: "🕵️",
+        story: "オトコ「サッサト ソレ ヲ ヨコセ！」<br>コイツ ガ ハンニン ダ。<br>ケッテイテキ ナ ショウコ ヲ ミセツケテ ヤレ！",
+        choices: [
+            { 
+                text: "『アオイ カケラ』ヲ ミセル", 
+                action: "judge", 
+                targetTrue: "ending_true", 
+                targetFalse: "ending_bad_lie" 
             },
             {
-                name: "ゴウテイ ノ マエ",
-                icon: "🏰",
-                story: "オオキナ ヤカタ ノ マエ デ パトカー ガ トマッテイル。<br>ケイカン「キセイセン カラ ハイラナイデ！」<br>ナニカ ジケン ガ オキタ ヨウダ。",
-                choices: [
-                    { text: "ヤジウマ ニ キク", action: "talkToMob" },
-                    { text: "ウラグチ ニ マワル", action: "next" } // 強制進行
-                ]
+                text: "『ラッキーコイン』ヲ ミセル", 
+                action: "move", 
+                target: "ending_peace" // 新エンディング
             },
             {
-                name: "ヤカタ ノ ウラニワ",
-                icon: "🌿",
-                story: "ウラニワ ニ シノビコンダ。<br>ダレモ イナイ...。<br>オヤ？ シゲミ ノ ナカ ニ ナニカ アル。",
-                choices: [
-                    { text: "アタリ を シラベル", action: "searchTreasure", treasure: "handkerchief" },
-                    { text: "マド ノ ナカ を ノゾク", action: "peekWindow" }
-                ]
-            },
-            {
-                name: "ロジアウラ",
-                icon: "🗑️",
-                story: "アヤシイ オトコ ガ ロジウラ へ ハシッテ イッタ。<br>オイカケヨウ。<br>ゴミバコ が タオサレテ イル。",
-                choices: [
-                    { text: "ゴミバコ を シラベル", action: "searchTreasure", treasure: "strangeGem" },
-                    { text: "キキコミ を スル", action: "talkToCat" },
-                    { text: "サキ ニ ススム", action: "next" }
-                ]
-            },
-            {
-                name: "ミナト ノ ソウコ",
-                icon: "⚓",
-                story: "オトコ ハ ソウコ ニ ニゲコンダ。<br>ウミ ノ ニオイ ガ スル。<br>ココ ガ アジト カモ シレナイ。",
-                choices: [
-                    { text: "ソウコ ニ トツニュウ", action: "stormWarehouse" },
-                    { text: "ウラ ニ マワル", action: "searchTreasure", treasure: "muddyBoots" }
-                ]
-            },
-            {
-                name: "ケッチャク",
-                icon: "🚓",
-                story: "ハンニン を オイツメタ！<br>ショウコヒン を ツキツケテ ヤレ。<br>「オマエ ガ ハンニン ダ！」",
-                choices: [
-                    { text: "スイリ を ヒロウ スル", action: "showDiary" }
-                ]
+                text: "『ハンカチ』ヲ ミセル", 
+                action: "move", 
+                target: "ending_bad_angry"
             }
         ]
-    }
-];
+    },
 
-const events = {
-    talkToMob: {
-        story: "「コノ ヤカタ ノ ホウセキ ガ ヌスマレタ ラスイヨ。<br>ハンニン ハ マダ チカク ニ イル カモ...」",
-        points: 10,
-        diary: "🗣️ 目撃情報: 宝石盗難事件が発生。犯人は逃走中。"
+    // -------------------------------------------------
+    // エンディング
+    // -------------------------------------------------
+    "ending_bad_angry": {
+        name: "ソウサ シッパイ",
+        icon: "💢",
+        story: "オトコ「フザケルナ！ ソンナ モノ イラン！」<br>ハンニン ハ ギャクギレ シテ オソイカカッテ キタ！<br>ショウコ フジュウブン デ カエリウチ ニ アッタ...。",
+        choices: [
+            { text: "タイトル ヘ モドル", action: "restart" }
+        ]
     },
-    peekWindow: {
-        story: "ヘヤ ノ ナカ は アラサレテ イル。<br>ショウケース ガ ワラレテ イル ノガ ミエタ。",
-        points: 10,
-        diary: "👁️ 現場確認: 屋内のショーケースが破壊されている。"
+    "ending_bad_lie": {
+        name: "ソウサ シッパイ",
+        icon: "😓",
+        story: "ポケット ヲ サガシタガ カケラ ヲ モッテイナイ！<br>オトコ「ナンダ ヒヤカシ カ！」<br>ハンニン ニ ニゲラレテ シマッタ...。",
+        choices: [
+            { text: "タイトル ヘ モドル", action: "restart" }
+        ]
     },
-    talkToCat: {
-        story: "ネコ「ニャー（アッチ ニ イッタ ヨ）」<br>ネコ ガ ミナト ノ ホウ を ムイテイル キガシタ。",
-        points: 5,
-        diary: "🐈 猫の証言: 港の方角へ向かった可能性。"
+    "ending_peace": {
+        name: "ジケン？ カイケツ",
+        icon: "🕊️",
+        story: "オトコ「ソ、ソレハ... ムカシ カッテイタ ネコ ノ コイン...」<br>オトコ ハ ヤサシイ カオ ニ ナッタ。<br>「モウ ヌスミ ハ ヤメルヨ...」<br>ナゼカ カイケツ シタ！<br><br>■ PEACEFUL END ■",
+        choices: [
+            { text: "タイトル ヘ モドル", action: "restart" }
+        ]
     },
-    stormWarehouse: {
-        story: "「カンネン シロ！」<br>オトコ ハ オドロイテ コシ を ヌカシタ。<br>テ に ハ ホウセキ ガ ニギラレテ イル。",
-        points: 50,
-        diary: "💥 犯人確保: 倉庫にて宝石を持った男と遭遇。"
+    "ending_true": {
+        name: "ジケン カイケツ",
+        icon: "🎉",
+        story: "「ソ、ソレハ... オレ ガ オトシタ ホウセキ ノ カケラ...」<br>オトコ ハ ソノバ ニ クズレオチタ。<br>「カンネン スル... オレ ガ ヤッタ」<br><br>■ CONGRATULATIONS! ■",
+        choices: [
+            { text: "タイトル ヘ モドル", action: "restart" }
+        ]
     }
 };
 
-// 【重要】ゲーム開始関数。ここがユーザーのクリックで発火する
+/* =========================================
+   Game Logic
+   ========================================= */
+
 async function startWalk() {
-    // 1. オーディオコンテキストを再開/初期化（これで音がなるようになる）
+    // iOSはユーザー操作起点でないと音が鳴らないためここでResume
     await AudioController.resumeContext();
-    
-    // 2. スタート音を鳴らす
     AudioController.playSe('start');
 
-    // 3. ゲームリセット処理
-    gameState.currentLocation = 0;
-    gameState.heartPoints = 0;
+    document.getElementById('game-container').classList.remove('game-over-mode');
+    gameState.currentSceneId = "start";
+    gameState.heartPoints = 100; // 初期値を設定
     gameState.diaryEntries = [];
-    gameState.metCharacters = {};
     gameState.treasures = {};
     gameState.totalTreasures = 0;
 
-    document.getElementById('heart-points').textContent = '0';
-    updateTreasureCount();
-    updateProgress();
+    document.getElementById('heart-points').textContent = gameState.heartPoints;
+    updateStats();
     
-    // 4. フェードインして最初のシーンへ
     const screen = document.querySelector('.main-display');
     screen.style.opacity = 0;
     setTimeout(() => {
         screen.style.opacity = 1;
-        showLocation();
+        showScene(gameState.currentSceneId);
     }, 500);
 }
 
-function showLocation() {
-    const location = days[0].locations[gameState.currentLocation];
+function showScene(sceneId) {
+    const scene = scenes[sceneId];
+    if (!scene) {
+        console.error("Scene not found:", sceneId);
+        return;
+    }
     
+    gameState.currentSceneId = sceneId;
+
+    const isGameOver = sceneId.includes("bad_end") || sceneId.includes("ending_bad");
+    const isHappyEnd = sceneId === "ending_true" || sceneId === "ending_peace";
+
     // 画面更新
-    document.getElementById('location-icon').textContent = location.icon;
-    document.getElementById('location-name').textContent = location.name;
-    document.getElementById('story-text').innerHTML = location.story;
+    document.getElementById('location-icon').textContent = scene.icon;
+    document.getElementById('location-name').textContent = scene.name;
+
+    if (isGameOver) {
+        AudioController.playSe('gameover');
+        document.getElementById('game-container').classList.add('game-over-mode');
+        document.getElementById('story-text').innerHTML = 
+            `<div class="game-over-text">GAME OVER</div>` + 
+            scene.story;
+    } else {
+        if(isHappyEnd) AudioController.playSe('charm'); // ハッピーエンド音
+        document.getElementById('game-container').classList.remove('game-over-mode');
+        document.getElementById('story-text').innerHTML = scene.story;
+    }
+    
+    // プログレスバー更新
+    const progress = document.getElementById('progress-fill');
+    // 簡易的な進捗表示
+    if(sceneId === 'start') progress.style.width = '5%';
+    else if(sceneId === 'mansion_front') progress.style.width = '20%';
+    else if(sceneId === 'mansion_inside_hall') progress.style.width = '40%';
+    else if(sceneId === 'station') progress.style.width = '60%';
+    else if(sceneId === 'alley') progress.style.width = '80%';
+    else if(sceneId === 'final_confrontation') progress.style.width = '95%';
+    else if(isHappyEnd) progress.style.width = '100%';
 
     const choicesDiv = document.getElementById('choices');
     choicesDiv.innerHTML = '';
 
-    location.choices.forEach(choice => {
-        // 取得済みアイテムの選択肢は隠す
+    scene.choices.forEach(choice => {
+        // すでに取得済みのアイテム探索は表示しない
         if (choice.action === 'searchTreasure' && gameState.treasures[choice.treasure]) {
             return;
         }
@@ -316,87 +651,85 @@ function showLocation() {
         const btn = document.createElement('button');
         btn.className = 'choice-btn';
         btn.textContent = choice.text;
+        
+        // タッチイベントの遅延解消のためonclickを使用
         btn.onclick = () => {
-            AudioController.playSe('select'); // 決定音
-            handleChoice(choice.action, choice.treasure);
+            handleChoice(choice);
         };
         choicesDiv.appendChild(btn);
     });
 }
 
-function handleChoice(action, param) {
-    if (action === 'next') {
-        gameState.currentLocation++;
+function handleChoice(choice) {
+    if (choice.action === 'move') {
         AudioController.playSe('move');
-        updateProgress();
-        showLocation();
-    } else if (action === 'showDiary') {
-        showDiary();
-    } else if (action === 'searchTreasure') {
-        findTreasure(param);
-    } else if (events[action]) {
-        showEvent(action);
+        showScene(choice.target);
+    } 
+    else if (choice.action === 'searchTreasure') {
+        AudioController.playSe('item'); // 共通アイテム音
+        findTreasure(choice.treasure, choice.target);
+    } 
+    else if (choice.action === 'itemCheck') {
+        AudioController.playSe('select');
+        if (gameState.treasures[choice.item]) {
+            showScene(choice.targetTrue);
+        } else {
+            showScene(choice.targetFalse);
+        }
+    }
+    else if (choice.action === 'charmCheck') {
+        // お色気成功演出
+        AudioController.playSe('charm');
+        // 少し遅らせてシーン遷移
+        setTimeout(() => {
+             showScene(choice.target);
+        }, 800);
+    }
+    else if (choice.action === 'judge') {
+        AudioController.playSe('select');
+        if (gameState.treasures['strangeGem']) {
+            showScene(choice.targetTrue); 
+        } else {
+            showScene(choice.targetFalse); 
+        }
+    }
+    else if (choice.action === 'damage') {
+        gameState.heartPoints -= choice.amount;
+        AudioController.playSe('gameover'); // ダメージ音代用
+        updateStats();
+        showScene(choice.target);
+    }
+    else if (choice.action === 'restart') {
+        restartGame();
     }
 }
 
-function findTreasure(treasureId) {
+function findTreasure(treasureId, nextSceneId) {
     const treasure = treasureData[treasureId];
+    
     if (!gameState.treasures[treasureId]) {
         gameState.treasures[treasureId] = treasure;
         gameState.totalTreasures++;
         gameState.heartPoints += 20;
-        gameState.diaryEntries.push(`🔎 GET: ${treasure.name}`);
         
-        // 演出
-        AudioController.playSe('item'); // アイテムGET音
+        // 猫の鳴き声分岐
+        if (treasureId === 'cat_snack' || treasureId === 'lucky_coin') {
+            AudioController.playSe('meow');
+        }
+
         showTreasurePopup(treasure);
         updateStats();
 
-        // 次へ進むボタンを表示
         setTimeout(() => {
-            // アイテムを見つけたらその場から立ち去る流れ
-            gameState.currentLocation++;
-            if (gameState.currentLocation < days[0].locations.length) {
-                updateProgress();
-                showLocation();
-            }
+            if (nextSceneId) showScene(nextSceneId);
         }, 2000);
     }
 }
 
-function showEvent(eventName) {
-    const event = events[eventName];
-    gameState.heartPoints += event.points;
-    gameState.diaryEntries.push(event.diary);
-    
-    updateStats();
-    
-    // ストーリーテキスト更新
-    document.getElementById('story-text').innerHTML = event.story;
-    
-    // ボタン更新（次へ）
-    const choicesDiv = document.getElementById('choices');
-    choicesDiv.innerHTML = '';
-    
-    const btn = document.createElement('button');
-    btn.className = 'choice-btn';
-    btn.textContent = "ツギ ヘ";
-    btn.onclick = () => {
-        AudioController.playSe('move');
-        gameState.currentLocation++;
-        updateProgress();
-        showLocation();
-    };
-    choicesDiv.appendChild(btn);
-}
-
 function showTreasurePopup(treasure) {
     const popup = document.getElementById('treasure-popup');
-    const icon = document.getElementById('treasure-icon');
-    const text = document.getElementById('treasure-text');
-
-    icon.textContent = treasure.icon;
-    text.textContent = `GET! ${treasure.name}`;
+    document.getElementById('treasure-icon').textContent = treasure.icon;
+    document.getElementById('treasure-text').textContent = `GET! ${treasure.name}`;
 
     popup.classList.add('show');
     setTimeout(() => {
@@ -406,71 +739,20 @@ function showTreasurePopup(treasure) {
 
 function updateStats() {
     document.getElementById('heart-points').textContent = gameState.heartPoints;
-    updateTreasureCount();
-}
-
-function updateTreasureCount() {
     document.getElementById('treasure-count').textContent = gameState.totalTreasures;
-}
-
-function updateProgress() {
-    const maxLoc = days[0].locations.length;
-    const percent = ((gameState.currentLocation + 1) / maxLoc) * 100;
-    document.getElementById('progress-fill').style.width = percent + '%';
-}
-
-function showDiary() {
-    document.querySelector('.game-container').classList.add('menu-mode');
-    document.querySelector('.main-display').style.display = 'none';
-    document.getElementById('choices').style.display = 'none';
-    document.getElementById('diary-screen').style.display = 'block';
-
-    const content = document.getElementById('diary-content');
-    content.innerHTML = '';
-    
-    gameState.diaryEntries.forEach(entry => {
-        const div = document.createElement('div');
-        div.className = 'diary-entry';
-        div.innerHTML = entry;
-        content.appendChild(div);
-    });
 }
 
 function restartGame() {
     location.reload();
 }
 
-// 画面遷移ヘルパー
-function showTreasureCollection() {
-    AudioController.playSe('select');
-    document.getElementById('diary-screen').style.display = 'none';
-    document.getElementById('treasure-collection').style.display = 'block';
-    
-    const grid = document.getElementById('collection-grid');
-    grid.innerHTML = '';
-    
-    Object.keys(treasureData).forEach(key => {
-        const data = treasureData[key];
-        const isFound = gameState.treasures[key];
-        
-        const div = document.createElement('div');
-        div.className = `treasure-item ${isFound ? '' : 'undiscovered'}`;
-        div.innerHTML = `
-            <div style="font-size:24px">${isFound ? data.icon : '？'}</div>
-            <div>${isFound ? data.name : '----'}</div>
-        `;
-        grid.appendChild(div);
-    });
-}
+window.startWalk = startWalk;
+window.restartGame = restartGame;
 
-function backToDiary() {
-    AudioController.playSe('select'); 
-    document.getElementById('treasure-collection').style.display = 'none';
-    document.getElementById('diary-screen').style.display = 'block';
-}
-
-// 初期化待ち
 window.addEventListener('load', () => {
-    // 最初の画面状態を設定
+    AudioController.init();
+    // スマホでの誤タップ防止のため、タッチイベントリスナーを追加
+    document.body.addEventListener('touchstart', function() {}, {passive: true});
+    
     document.getElementById('story-text').innerHTML = "GAME START ボタン ヲ<br>オシテ ソウサ カイシ";
 });
