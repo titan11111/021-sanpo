@@ -2,8 +2,8 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>8-BIT 迷宮事件簿</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>散歩中の事件簿</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
@@ -11,12 +11,12 @@
 </head>
 <body>
     <div class="scanline"></div>
-    <div class="game-container">
+    <div class="game-container" id="game-container">
         <div class="header">
-            <h1>■ メイタンテイ ノ ジケンボ ■</h1>
+            <h1>■ サンポチュウ ノ ジケンボ ■</h1>
             <div class="stats-container">
                 <div class="stat-box">
-                    <span>LV(IQ):</span>
+                    <span>IQ:</span>
                     <span id="heart-points">0</span>
                 </div>
                 <div class="stat-box">
@@ -25,7 +25,7 @@
                 </div>
             </div>
             <div class="audio-control">
-                <button id="bgm-toggle" class="nes-btn is-primary">SOUND: OFF</button>
+                <button id="bgm-toggle" class="nes-btn">SOUND: OFF</button>
             </div>
         </div>
         
@@ -34,15 +34,10 @@
                 <div class="location-icon" id="location-icon">🚶</div>
             </div>
             
-            <div class="message-window">
+            <div class="message-window" id="message-window">
                 <div class="location-label" id="location-name">サンポ ミチ</div>
                 <div class="story-text" id="story-text">
-                    テンキ ガ イイ。<br>
-                    キョウ ハ 絶好 ノ サンポ ビヨリ ダ。<br>
-                    <br>
-                    ...オヤ？ ナニカ サワガシイ。
-                </div>
-                <div class="blinking-cursor">▼</div>
+                    </div>
             </div>
         </div>
 
@@ -57,23 +52,8 @@
         <div class="treasure-popup" id="treasure-popup">
             <div class="popup-border">
                 <div class="treasure-icon" id="treasure-icon">🔍</div>
-                <div class="treasure-text" id="treasure-text">ジュウヨウ ショウコ ハッケン!</div>
+                <div class="treasure-text" id="treasure-text">GET!</div>
             </div>
-        </div>
-        
-        <div class="diary-screen" id="diary-screen" style="display: none;">
-            <h2>📝 ソウサ ホウコクショ</h2>
-            <div class="diary-content" id="diary-content"></div>
-            <div class="menu-buttons">
-                <button class="choice-btn" onclick="showTreasureCollection()">ショウコヒン</button>
-                <button class="choice-btn" onclick="restartGame()">タイトル ヘ</button>
-            </div>
-        </div>
-        
-        <div class="treasure-collection" id="treasure-collection" style="display: none;">
-            <h2>📁 ショウコヒン リスト</h2>
-            <div class="collection-grid" id="collection-grid"></div>
-            <button class="choice-btn" onclick="backToDiary()">モドル</button>
         </div>
     </div>
 
