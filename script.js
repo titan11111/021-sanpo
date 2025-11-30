@@ -1,5 +1,5 @@
 /* =========================================
-   1. Audio Engine (Stabilized)
+   1. Audio Engine (Final Stable Ver.)
    ========================================= */
    const AudioEngine = {
     ctx: null,
@@ -28,7 +28,6 @@
         if (this.ctx.state === 'suspended') {
             this.ctx.resume();
         }
-        // モバイル向けダミー再生
         const buffer = this.ctx.createBuffer(1, 1, 22050);
         const source = this.ctx.createBufferSource();
         source.buffer = buffer;
@@ -114,7 +113,7 @@
         gain.connect(this.ctx.destination);
         const now = this.ctx.currentTime;
         
-        osc.start(now); // start first to avoid error
+        osc.start(now);
 
         switch (type) {
             case 'select':
@@ -148,7 +147,7 @@
                 gain.gain.linearRampToValueAtTime(0, now + 0.3);
                 osc.stop(now + 0.3);
                 break;
-            case 'charm': // お色気音
+            case 'charm':
                 osc.type = 'sine';
                 osc.frequency.setValueAtTime(600, now);
                 osc.frequency.exponentialRampToValueAtTime(300, now + 0.6);
@@ -166,17 +165,16 @@
 const GameState = {
     scene: "title",
     hp: 0,
-    items: {}, // 持っているアイテムID: true
+    items: {},
     itemCount: 0,
     isTyping: false,
     textTimer: null
 };
 
-// アイテム定義
 const Items = {
     "cat_snack": { 
         name: "マタタビ スナック", icon: "🐟", 
-        desc: "ネコ ガ ダイスキ ナ オヤツ。イイコト ガ アルカモ？" 
+        desc: "ネコ ガ ダイスキ ナ オヤツ。ココロ ヲ ヒラク カギ。" 
     },
     "wire": { 
         name: "サビタ ハリガネ", icon: "➰", 
@@ -188,23 +186,22 @@ const Items = {
     },
     "secretLetter": { 
         name: "ハンニン ノ テガミ", icon: "✉️", 
-        desc: "『コンヤ ミナト デ ト リ ヒ キ ダ』 ト カイテアル。" 
+        desc: "『カホウ ハ トリ カエシタ。ミナト デ マツ』...リュウジ ヨリ。" 
     },
     "lucky_coin": {
-        name: "ラッキー コイン", icon: "🪙",
-        desc: "ネコ ガ クレタ ピカピカ ノ コイン。キセキ ヲ ヨブ。"
+        name: "ラッキー コイン", icon: "🪙", 
+        desc: "ネコ ガ クレタ コイン。ヨク ミルト 『タマ』 ト キザマレテ イル。"
     },
     "strangeGem": { 
         name: "アオイ カケラ", icon: "💎", 
-        desc: "トテモ キレイナ アオイ イシ ノ カケラ。" 
+        desc: "トテモ キレイナ アオイ イシ。カナシイ イロ ヲ シテイル。" 
     },
     "handkerchief": { 
         name: "アカイ ハンカチ", icon: "🟥", 
-        desc: "イニシャル 『R』 ガ シシュウ サレテイル。" 
+        desc: "イニシャル 『R』... キット 『Ryuji』 ノ モノダ。" 
     }
 };
 
-// シナリオ定義 (拡張版)
 const Scenes = {
     "title": { name: "タイトル", icon: "🕵️", text: "", choices: [] },
     
@@ -213,7 +210,7 @@ const Scenes = {
         name: "ヘイワ ナ コウエン", icon: "🌳",
         text: "イツモ ドオリ ノ サンポ ミチ。\n「ニャ～ン...」\nドコカ カラ ナキゴエ ガ キコエル。",
         choices: [
-            { text: "コウエン ノ オク ヲ ミル", act: "move", to: "park_bush" },
+            { text: "コウエン ノ オク ヲ ミル", act: "check", item: "lucky_coin", trueTo: "park_done_revisit", falseTo: "park_bush" },
             { text: "サキ ニ ススム", act: "move", to: "mansion_front" }
         ]
     },
@@ -246,13 +243,18 @@ const Scenes = {
     },
     "cat_happy": {
         name: "シゲミ ノ ナカ", icon: "😻",
-        text: "ネコ「ニャウ〜ン♪」\nネコ ハ オイシソウ ニ オヤツ ヲ タベタ。\nオレイ ニ 『キラキラ ヒカル モノ』 ヲ クレタ！",
-        choices: [{ text: "ヒロウ", act: "get", item: "lucky_coin", to: "park_done" }]
+        text: "ネコ「ニャウ〜ン♪」\nオイヤツ ヲ タベル ト、ネコ ハ アナタ ニ ナツイタ！\nクビワ ニ 『コイン』 ガ ハサマッテ イタ。",
+        choices: [{ text: "コイン ヲ トル", act: "get", item: "lucky_coin", to: "park_done" }]
     },
     "park_done": {
         name: "コウエン", icon: "🌳",
-        text: "ネコ ハ マンゾク シテ サッテ イッタ。\nサア、サンポ ヲ ツヅケヨウ。",
+        text: "ネコ ハ アナタ ノ アト ヲ ツイテ クル。\nドウヤラ 『アイボウ』 ニ ナッテ クレル ヨウダ。\nサア、サンポ ヲ ツヅケヨウ。",
         choices: [{ text: "サキ ニ ススム", act: "move", to: "mansion_front" }]
+    },
+    "park_done_revisit": {
+        name: "シゲミ ノ ナカ", icon: "🌳",
+        text: "シゲミ ヲ ノゾイタ ガ、ネコ ハ モウ イナイ。\nアイボウ ハ、キット サキ デ マッテ イル。",
+        choices: [{ text: "モドル", act: "move", to: "start" }]
     },
 
     // --- Mansion Front ---
@@ -266,9 +268,9 @@ const Scenes = {
     },
     "police_talk": {
         name: "ケイカン", icon: "👮",
-        text: "ケイカン「ココハ タチイリ キンシ ダ！」\nトテモ キビシ ソウダ。\nナン トカ シテ ジョウホウ ヲ キキダセ ナイカ...",
+        text: "ケイカン「コノ ヤカタ ノ 『アオイ カホウ』 ガ ヌスマレタ」\nアルジ ハ ゴウヨク デ ユウメイ ナ キゾク ダ。",
         choices: [
-            { text: "マジメ ニ キク", act: "move", to: "mansion_crowd" },
+            { text: "ウラグチ ニ マワル", act: "move", to: "mansion_back" },
             { text: "イロジカケ スル", act: "move", to: "police_charm_fail" }
         ]
     },
@@ -276,11 +278,6 @@ const Scenes = {
         name: "ケイカン", icon: "💦",
         text: "アナタ ハ チョット セクシー ニ ウインク シテミタ。\nケイカン「...ナニ ヲ シテイルンダ キミ ハ」\nドンビキ サレテ シマッタ！！ ハズカシイ！",
         choices: [{ text: "ニゲダス", act: "move", to: "mansion_back" }]
-    },
-    "mansion_crowd": {
-        name: "ヤジウマ", icon: "🗣️",
-        text: "ヤジウマ「ゴウトウ ダッテヨ！\nコノ ヤカタ ノ 『カホウ』 ガ ヌスマレタ ラシイ ゼ」\nハンニン ハ マダ チカク ニ イル カモ...。",
-        choices: [{ text: "ウラグチ ニ マワル", act: "move", to: "mansion_back" }]
     },
 
     // --- Mansion Back & Inside ---
@@ -349,7 +346,7 @@ const Scenes = {
     },
     "mansion_inside_done": {
         name: "ヤカタ ノ ナカ", icon: "✉️",
-        text: "テガミ「コンヤ ミナト ノ ソウコ デ ブツ ヲ ワタス」\nハンニン ハ ミナト ニ イル！\nショウテンガイ ヲ ヌケテ、エキ ヘ イソゴウ。",
+        text: "テガミ「カホウ ハ トリ カエシタ。ミナト デ マツ」\nサシダシニン ハ 『リュウジ』...\nコノ ナマエ、ドコカ デ...",
         choices: [{ text: "ヤカタ ヲ デル", act: "move", to: "town_crossroad" }]
     },
     "bad_end_encounter": {
@@ -358,62 +355,56 @@ const Scenes = {
         choices: [{ text: "タイトル ヘ モドル", act: "reset" }]
     },
 
-    // --- Downtown (Bar & Fortune) ---
+    // --- Downtown ---
     "town_crossroad": {
         name: "ヨル ノ マチ", icon: "🌃",
         text: "ハンカガイ ニ デタ。\nミナト ヘ イク マエ ニ、スコシ ジョウホウ シュウシュウ ヲ シテオコウ。",
         choices: [
             { text: "Bar『クロネコ』ヘ", act: "move", to: "bar_entry" },
-            { text: "ロジウラ ノ ウラナイ", act: "move", to: "fortune_teller" },
+            { text: "ロジウラ ノ ウラナイ", act: "check", item: "lucky_coin", trueTo: "fortune_done", falseTo: "fortune_teller" },
             { text: "エキ ヘ イソグ", act: "move", to: "station" }
         ]
     },
     "bar_entry": {
         name: "Bar クロネコ", icon: "🍸",
-        text: "カランコロン...。\nオトナ ノ フンイキ ノ Bar ダ。\nマスター ガ グラス ヲ ミガ いている。",
+        text: "カランコロン...。\nマスター「リュウジ カ... カレ ノ イエ ハ、\nアノ ヤカタ ノ アルジ ニ ハメラレテ ボツラク シタンダ」",
         choices: [
-            { text: "マスター ニ キク", act: "move", to: "bar_master" },
-            { text: "トナリ ノ キャク ニ...", act: "move", to: "bar_flirt" }
+            { text: "レイ ヲ イウ", act: "move", to: "town_crossroad" }
         ]
-    },
-    "bar_master": {
-        name: "Bar クロネコ", icon: "🤵",
-        text: "「アオイ カケラ...？\nソウイエバ ミナト ノ ホウ デ、\nキミョウ ナ アオイ ヒカリ ヲ ミタ トイウ ウワサ ガ アルネ」",
-        choices: [{ text: "レイ ヲ イウ", act: "move", to: "town_crossroad" }]
-    },
-    "bar_flirt": {
-        name: "Bar クロネコ", icon: "💋",
-        text: "トナリ ノ ビジョ ニ カッコツケテ ハナシカケタ。\n「ボク ト アマイ カクテル ヲ...」\n「ボウヤ、ミルク デモ ノンデナ！」\n...コトワラレテ シマッタ。",
-        choices: [{ text: "スゴスゴ ト シリゾク", act: "move", to: "town_crossroad" }]
     },
     "fortune_teller": {
         name: "ウラナイ", icon: "🔮",
-        text: "アヤシゲ ナ ウラナイシ ガ イル。\n「オヤ... アンタ、ネコ ニ スカレル ソウ ヲ シテルネ。\nコノ コイン ヲ アゲヨウ」",
+        text: "アヤシゲ ナ ウラナイシ ガ イル。\n「アンタ、ネコ ニ スカレル ソウ ヲ シテルネ。\nコノ コイン ヲ アゲヨウ」",
         choices: [{ text: "ラッキーコイン？", act: "check", item: "lucky_coin", trueTo: "fortune_normal", falseTo: "fortune_rare" }]
     },
     "fortune_normal": {
         name: "ウラナイ", icon: "🔮",
-        text: "「ウン？ モウ モッテイル ノカイ？\nナラバ アドバイス ダ。\n『サイゴ ハ カネ デハナク、ココロ デ エラベ』...ダヨ」",
+        text: "「ココロ デ エラベ... ソレガ ウンメイ ヲ カエルヨ」",
         choices: [{ text: "エキ ヘ イク", act: "move", to: "station" }]
     },
     "fortune_rare": {
         name: "ウラナイ", icon: "🪙",
-        text: "「ホラ、モッテオキナ。\nコノ コイン ハ キット キセキ ヲ ヨブヨ」\nラッキーコイン ヲ モラッタ！",
+        text: "「コノ コイン ハ キット キセキ ヲ ヨブヨ」\nラッキーコイン ヲ モラッタ！",
         choices: [{ text: "アリガトウ", act: "get", item: "lucky_coin", to: "town_crossroad" }]
     },
+    "fortune_done": {
+        name: "ウラナイ", icon: "🔮",
+        text: "ウラナイシ ハ モウ イナイ。\n「ココロ デ エラベ」... ソノ コトバ ガ ノコッタ。",
+        choices: [{ text: "モドル", act: "move", to: "town_crossroad" }]
+    },
 
-    // --- Station ---
+    // --- Station (Reiko's Scene) ---
     "station": {
         name: "エキ マエ", icon: "🚉",
         text: "エキ マエ ハ ヒト デ イッパイ ダ。\nベンチ ニ キレイ ナ オネエサン ガ スワッテ イル。\nナニカ コマッテ イル ヨウダ。",
         choices: [
-            { text: "ハナシ カケル", act: "move", to: "station_lady" },
+            { text: "ハナシ カケル", act: "check", item: "handkerchief", trueTo: "station_done", falseTo: "station_lady" },
             { text: "ロジアウラ ヲ トオル", act: "move", to: "alley" }
         ]
     },
     "station_lady": {
         name: "ナゾ ノ ビジョ", icon: "👩",
-        text: "オネエサン「アラ、カワイイ タンテイ サン ね」\nトテモ イイ ニオイ ガ スル...。\nカノジョ ハ ハンカチ ヲ オトシタ。",
+        text: "オネエサン「アニ ノ 『リュウジ』 ガ カエッテ コナイノ...」\nカノジョ ハ ハンカチ ヲ オトシタ。\nイニシャル 『R』 ハ リュウジ ノ R カ！",
         choices: [
             { text: "カッコツケテ ヒロウ", act: "charmCheck", to: "station_lady_charm" },
             { text: "フツウ ニ ヒロウ", act: "get", item: "handkerchief", to: "station_lady_normal" }
@@ -421,39 +412,37 @@ const Scenes = {
     },
     "station_lady_charm": {
         name: "ナゾ ノ ビジョ", icon: "💖",
-        text: "アナタ ハ キザ ニ ハンカチ ヲ ヒロイ アゲタ。\nオネエサン「フフッ、ステキ。\nデモ、ソレ ハ アナタ ガ モッテイテ」\nハンカチ ヲ アズカッタ！IQ ガ アガッタ！",
+        text: "「アニ ヲ... トメテ クダサイ」\nカノジョ ハ ハンカチ ヲ アナタ ニ タクシタ。\nIQ ガ アガッタ！",
         choices: [{ text: "ミナト ヘ", act: "get", item: "handkerchief", to: "harbor_park" }]
     },
     "station_lady_normal": {
         name: "エキ マエ", icon: "🚉",
-        text: "オネエサン「アリガトウ。オレイ ニ コレハ アゲルワ」\nハンカチ ヲ モラッタ。\nイニシャル 『R』... ダレダロウ？",
+        text: "「アニ ヲ... トメテ クダサイ」\nハンカチ ヲ アズカッタ。\nコレハ カノジョ（レイコ）ノ ネガイ ダ。",
+        choices: [{ text: "ミナト ヘ", act: "move", to: "harbor_park" }]
+    },
+    "station_done": {
+        name: "エキ マエ", icon: "🚉",
+        text: "レイコ ハ モウ イナイ。\nアニ ヲ シンジアッテ、ミナト ノ ホウ ヘ イッタ ハズダ。",
         choices: [{ text: "ミナト ヘ", act: "move", to: "harbor_park" }]
     },
 
-    // --- Harbor ---
+    // --- Harbor & Warehouse ---
     "harbor_park": {
         name: "ミナト ノ コウエン", icon: "⚓",
-        text: "ウミ ノ ニオイ ガ スル...。\nソウコ ハ スグ ソコ ダ。\nベンチ デ ツリビト ガ タメ イキ ヲ ツイテイル。",
+        text: "ウミ ノ ニオイ ガ スル...。\nソウコ ノ マエ デ、ネコ ガ マッテ イタ。\nアナタ ト トモニ イク ツモリ ラスイ。",
         choices: [
             { text: "ツリビト ニ ハナス", act: "move", to: "fisherman" },
-            { text: "ネコ ニ オヤツ", act: "check", item: "cat_snack", trueTo: "harbor_cat", falseTo: "alley" }
+            { text: "アイボウ ト ススム", act: "move", to: "alley" }
         ]
     },
     "fisherman": {
         name: "ツリビト", icon: "🎣",
-        text: "「サッキ、アヤシイ オトコ ガ ロジアウラ ニ ハイッテ イッタヨ。\nゴミ ヲ ステテ イッタ ミタイダ」",
+        text: "「ロジアウラ ニ ハイッタ オトコ ハ、\nカナシソウ ナ カオ ヲ シテ イタヨ...」",
         choices: [{ text: "ロジアウラ ヘ", act: "move", to: "alley" }]
     },
-    "harbor_cat": {
-        name: "ミナト ノ ネコ", icon: "🐈",
-        text: "ココ ニモ オナカ ヲ スカセタ ネコ ガ イタ。\nオヤツ ヲ アゲルト、\nウレシソウ ニ アシモト ニ スリヨッテ キタ。\nココロ ガ オチツク...。",
-        choices: [{ text: "ロジアウラ ヘ", act: "move", to: "alley" }]
-    },
-
-    // --- Alley ---
     "alley": {
         name: "ロジアウラ", icon: "🗑️",
-        text: "ゴミバコ ガ タオサレテ イル。\nナニカ ステテ イッタ カモ シレナイ。",
+        text: "ゴミバコ ガ タオサレテ イル。\nココ ヲ ヌケレバ ソウコ ダ。",
         choices: [
             { text: "ゴミバコ ヲ シラベル", act: "get", item: "strangeGem", to: "alley_checked" },
             { text: "ゴミバコ ヲ ケトバス", act: "move", to: "bad_end_ambush" },
@@ -467,46 +456,69 @@ const Scenes = {
     },
     "alley_checked": {
         name: "ロジアウラ", icon: "💎",
-        text: "コレハ... ウワサ ノ 『アオイ ホウセキ』 ノ カケラ ダ！\nコレデ ショウコ ハ ソロッタ。",
+        text: "ゴミバコ ニ 『アオイ ホウセキ』 ガ ステテ アッタ。\nリュウジ ハ、コレ ヲ ウリサバク ツモリ ハ ナカッタ...？",
         choices: [{ text: "ソウコ ニ トツニュウ", act: "move", to: "warehouse" }]
     },
-
-    // --- Climax ---
     "warehouse": {
         name: "ミナト ノ ソウコ", icon: "🚢",
-        text: "アヤシイ オトコ ガ イタ。\nオトコ「トリヒキ アイテ カ？ レイ ノ ブツ ハ モッテ キタノカ？」\nカンチガイ シテイル ヨウダ。",
-        choices: [{ text: "ショウコ ヲ ツキツケル", act: "move", to: "final_confrontation" }]
+        text: "「ダレダ！」\nリュウジ ガ イタ。\n「コノ ホウセキ ハ、モトモト オレタチ カゾク ノ モノダ！\nヤツラ ニ カエス モノカ！」",
+        choices: [{ text: "説得 スル", act: "move", to: "final_confrontation" }]
     },
+
+    // --- Climax & Endings ---
     "final_confrontation": {
         name: "ケッチャク", icon: "🕵️",
-        text: "オトコ「サッサト ソレ ヲ ヨコセ！」\nコイツ ガ ハンニン ダ。\nケッテイテキ ナ ショウコ ヲ ミセツケテ ヤレ！",
+        text: "リュウジ「ジャマ ヲ スルナ！！」\nカレ ハ ドウヨウ シテイル。\nカレ ノ ココロ ヲ ウゴカス モノ ハ...",
         choices: [
             { text: "『アオイ カケラ』", act: "judge", trueTo: "ending_true", falseTo: "ending_bad_lie" },
-            { text: "『ラッキーコイン』", act: "move", to: "ending_peace" },
-            { text: "『ハンカチ』", act: "move", to: "ending_bad_angry" }
+            { text: "『ラッキーコイン』", act: "judge", trueTo: "ending_peace", falseTo: "ending_bad_lie" },
+            { text: "『ハンカチ』", act: "judge", trueTo: "ending_family", falseTo: "ending_bad_angry" }
         ]
     },
 
-    // --- Endings ---
+    // Bad Ends
     "ending_bad_angry": {
         name: "ソウサ シッパイ", icon: "💢",
-        text: "オトコ「フザケルナ！ ソンナ モノ イラン！」\nハンニン ハ ギャクギレ シテ オソイカカッテ キタ！\nショウコ フジュウブン デ カエリウチ ニ アッタ...。",
+        text: "「ソンナ モノ シラン！」\nリュウジ ハ ギャクギレ シテ オソイカカッテ キタ！\nショウコ フジュウブン デ カエリウチ ニ アッタ...。",
         choices: [{ text: "タイトル ヘ モドル", act: "reset" }]
     },
     "ending_bad_lie": {
         name: "ソウサ シッパイ", icon: "😓",
-        text: "ポケット ヲ サガシタガ カケラ ヲ モッテイナイ！\nオトコ「ナンダ ヒヤカシ カ！」\nハンニン ニ ニゲラレテ シマッタ...。",
+        text: "ポケット ヲ サガシタガ ナニモ ナイ！\n「ヒヤカシ カ！」\nリュウジ ニ ニゲラレテ シマッタ...。",
         choices: [{ text: "タイトル ヘ モドル", act: "reset" }]
     },
-    "ending_peace": {
-        name: "ジケン？ カイケツ", icon: "🕊️",
-        text: "オトコ「ソ、ソレハ... ムカシ カッテイタ ネコ ノ コイン...」\nオトコ ハ ヤサシイ カオ ニ ナッタ。\n「モウ ヌスミ ハ ヤメルヨ...」\nナゼカ カイケツ シタ！\n\n■ PEACEFUL END ■",
-        choices: [{ text: "タイトル ヘ モドル", act: "reset" }]
-    },
+
+    // TRUE END (Hardboiled): 宝石を見せる
     "ending_true": {
-        name: "ジケン カイケツ", icon: "🎉",
-        text: "「ソ、ソレハ... オレ ガ オトシタ ホウセキ ノ カケラ...」\nオトコ ハ ソノバ ニ クズレオチタ。\n「カンネン スル... オレ ガ ヤッタ」\n\n■ CONGRATULATIONS! ■",
-        choices: [{ text: "タイトル ヘ モドル", act: "reset" }]
+        name: "ジケン カイケツ", icon: "🚓",
+        text: "リュウジ「ソレ ハ... オフクロ ノ カタミ...」\nカレ ハ ソノバ ニ クズレオチタ。\n\n「...ワカッタ。ツグナウ ヨ」\nトオク カラ パトカー ノ サイレン ガ キコエル。\nアト ハ ケイサツ ニ マカセヨウ。",
+        choices: [{ text: "ソノバ ヲ タチサル", act: "move", to: "epilogue_hardboiled" }]
+    },
+
+    // FAMILY END (Emotion): ハンカチを見せる
+    "ending_family": {
+        name: "キョウダイ ノ キズナ", icon: "🤝",
+        text: "「ソレ ハ... レイコ ノ...」\nソコ ヘ レイコ ガ カケツケタ。\n「オニイチャン、モウ ヤメテ！」\n\nリュウジ ハ レイコ ヲ ダキシメタ。\n「スマナイ... レイコ...」",
+        choices: [{ text: "ミマモル", act: "move", to: "epilogue_hardboiled" }]
+    },
+
+    // PEACEFUL END (Cat): コインを見せる
+    "ending_peace": {
+        name: "キセキ ノ サイカイ", icon: "🐈",
+        text: "「ソ、ソレハ... ムカシ カッテイタ ネコ（タマ）ノ コイン...」\nスルト、アイボウ ノ ネコ ガ リュウジ ニ トビツイタ！\n\n「タマ！？ イキテ イタノカ...」\nオトコ ハ ヤサシイ カオ ニ ナッタ。\n「モウ ヌスミ ハ ヤメル... コイツ ノ タメ ニモ」",
+        choices: [{ text: "サンポ ニ モドル", act: "move", to: "epilogue_walk" }]
+    },
+
+    // --- Epilogues ---
+    "epilogue_walk": {
+        name: "サンポ ミチ", icon: "🚶",
+        text: "ジケン ハ オワッタ。\nココチヨイ カゼ ガ フイテイル。\n\nキョウ モ イイ サンポ だっタ。\nマタ アシタ モ、アルコウ。",
+        choices: [{ text: "THE END", act: "reset" }]
+    },
+    "epilogue_hardboiled": {
+        name: "ユウグレ ノ マチ", icon: "🌇",
+        text: "マチ ニ ヒ ガ シズム...。\n\nレイ ヲ イワレル ノハ ニガテ ダ。\nオレ ハ タダ ノ、トオリスガリ ノ サンポシャ。\n\nクツヒモ ヲ ムスビ ナオシ、\nオレ ハ マタ アルキ ダス。",
+        choices: [{ text: "■ FIN ■", act: "reset" }]
     }
 };
 
@@ -514,26 +526,21 @@ const Scenes = {
    3. Game Logic (Engine)
    ========================================= */
 
-// Init
 window.addEventListener('load', () => {
     AudioEngine.init();
 
-    // Start Button
     const startBtn = document.getElementById('start-btn');
     if(startBtn) {
         startBtn.addEventListener('click', startWalk);
         startBtn.addEventListener('touchstart', () => AudioEngine.unlock(), {passive: true});
     }
 
-    // Audio Toggle
     document.getElementById('bgm-toggle').addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
         AudioEngine.toggleMute();
     });
 
-    // --- インベントリ機能 (ITEMボックスをクリック) ---
-    // 既存のHTML構造上、2番目のstat-boxがItem数
     const itemBox = document.querySelectorAll('.stat-box')[1];
     if(itemBox) {
         itemBox.style.cursor = "pointer";
@@ -569,6 +576,9 @@ function resetGame() {
 }
 
 function showScene(sceneId) {
+    if (GameState.textTimer) clearTimeout(GameState.textTimer);
+    GameState.isTyping = false;
+
     GameState.scene = sceneId;
     const scene = Scenes[sceneId];
     if (!scene) return;
@@ -583,7 +593,6 @@ function showScene(sceneId) {
     let i = 0;
     GameState.isTyping = true;
     
-    // Skip typing on click
     textElem.onclick = () => {
         if(GameState.isTyping) {
             clearTimeout(GameState.textTimer);
@@ -623,16 +632,12 @@ function finishTyping(scene) {
 }
 
 function handleAction(choice) {
-    // Check item possession
     if (choice.act === "check" || choice.act === "judge") {
         let hasItem = false;
         if (choice.item === "strangeGem") hasItem = GameState.items["strangeGem"];
         else hasItem = GameState.items[choice.item];
         
-        // 判定ロジック：アイテムを持っていればtrueToへ
-        // judgeの場合は判定が特殊
         if (choice.act === "judge") {
-            // ケッチャクシーン用
             if (choice.text.includes("アオイ")) hasItem = GameState.items["strangeGem"];
             else if (choice.text.includes("コイン")) hasItem = GameState.items["lucky_coin"];
             else if (choice.text.includes("ハンカチ")) hasItem = GameState.items["handkerchief"];
@@ -645,14 +650,12 @@ function handleAction(choice) {
         return;
     }
 
-    // Move scene
     if (choice.act === "move") {
         AudioEngine.playSe('select');
         showScene(choice.to);
         return;
     }
 
-    // Get Item
     if (choice.act === "get") {
         const item = Items[choice.item];
         if (!GameState.items[choice.item]) {
@@ -669,7 +672,6 @@ function handleAction(choice) {
         return;
     }
 
-    // Damage
     if (choice.act === "damage") {
         GameState.hp -= choice.val;
         AudioEngine.playSe('damage');
@@ -687,7 +689,6 @@ function handleAction(choice) {
         return;
     }
 
-    // Charm (Special)
     if (choice.act === "charmCheck") {
         AudioEngine.playSe('charm');
         flashScreen('white');
@@ -698,28 +699,23 @@ function handleAction(choice) {
         return;
     }
 
-    // Reset
     if (choice.act === "reset") {
         resetGame();
         return;
     }
 }
 
-// --- インベントリ機能 (ポップアップ流用) ---
 function openInventory() {
     if(GameState.scene === 'title') return;
 
-    // 現在の選択肢エリアを一時的にアイテムリストにする
+    if (GameState.textTimer) clearTimeout(GameState.textTimer);
+    GameState.isTyping = false;
+    
     const choicesDiv = document.getElementById('choices');
     const textDiv = document.getElementById('story-text');
-    
-    // 戻るための情報を保存するのは複雑になるため、
-    // 「閉じる」ボタンで現在のシーンを再描画する方式をとる
-    
     textDiv.textContent = "ショジヒン リスト";
     choicesDiv.innerHTML = "";
 
-    // 閉じるボタン
     const closeBtn = document.createElement('button');
     closeBtn.className = 'choice-btn';
     closeBtn.textContent = "× トジル";
@@ -727,7 +723,6 @@ function openInventory() {
     closeBtn.onclick = () => showScene(GameState.scene);
     choicesDiv.appendChild(closeBtn);
 
-    // アイテム一覧
     const keys = Object.keys(GameState.items);
     if(keys.length === 0) {
         textDiv.textContent = "ナニモ モッテイナイ...";
@@ -746,7 +741,6 @@ function openInventory() {
     }
 }
 
-// UI Helpers
 function showPopup(text, icon) {
     const popup = document.getElementById('treasure-popup');
     document.getElementById('treasure-text').textContent = text;
@@ -773,6 +767,6 @@ function updateProgress(sceneId) {
     else if(sceneId.includes('mansion')) per = 40;
     else if(sceneId.includes('town')) per = 60;
     else if(sceneId.includes('harbor')) per = 80;
-    else if(sceneId.includes('ending')) per = 100;
+    else if(sceneId.includes('ending') || sceneId.includes('epilogue')) per = 100;
     document.getElementById('progress-fill').style.width = per + "%";
 }
