@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>散歩中の事件簿</title>
+    <title>散歩中の事件簿 - 8bit Detective</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
@@ -11,6 +11,8 @@
 </head>
 <body>
     <div class="scanline"></div>
+    <div id="screen-flash" class="screen-flash"></div>
+
     <div class="game-container" id="game-container">
         <div class="header">
             <h1>■ サンポチュウ ノ ジケンボ ■</h1>
@@ -25,7 +27,7 @@
                 </div>
             </div>
             <div class="audio-control">
-                <button id="bgm-toggle" class="nes-btn">SOUND: OFF</button>
+                <button id="bgm-toggle">SOUND: OFF</button>
             </div>
         </div>
         
@@ -35,14 +37,16 @@
             </div>
             
             <div class="message-window" id="message-window">
-                <div class="location-label" id="location-name">サンポ ミチ</div>
+                <div class="location-label" id="location-name">タイキチュウ...</div>
                 <div class="story-text" id="story-text">
-                    </div>
+                    ロード カンリョウ。<br>
+                    GAME START ヲ オシテ クダサイ。
+                </div>
             </div>
         </div>
 
         <div class="choices-container" id="choices">
-            <button class="choice-btn" onclick="startWalk()">GAME START</button>
+            <button class="choice-btn" id="start-btn">GAME START</button>
         </div>
         
         <div class="progress-bar">
