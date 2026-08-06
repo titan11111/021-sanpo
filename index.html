@@ -2,66 +2,66 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>散歩中の事件簿 - 8bit Detective</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="サンポジケンボ">
+    <meta name="theme-color" content="#000000">
+    <meta name="format-detection" content="telephone=no">
+    <title>散歩中の事件簿 - ポートピア風探偵ADV</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="scanline"></div>
+    <div class="scanline" aria-hidden="true"></div>
     <div id="screen-flash" class="screen-flash"></div>
 
+    <!-- 比率: ステータス10% / 背景40% / コメント25% / 選択肢30%(×3) -->
     <div class="game-container" id="game-container">
-        <div class="header">
-            <h1>■ サンポチュウ ノ ジケンボ ■</h1>
-            <div class="stats-container">
+        <header class="header">
+            <h1>サンポチュウ ノ ジケンボ</h1>
+            <div class="stats-row">
                 <div class="stat-box">
-                    <span>IQ:</span>
+                    <span class="stat-label">IQ</span>
                     <span id="heart-points">0</span>
                 </div>
-                <div class="stat-box">
-                    <span>ITEM:</span>
+                <button type="button" class="stat-box item-btn" id="item-btn" aria-label="アイテム">
+                    <span class="stat-label">ITEM</span>
                     <span id="treasure-count">0</span>
-                </div>
+                </button>
+                <button type="button" class="audio-btn" id="bgm-toggle">SOUND OFF</button>
             </div>
-            <div class="audio-control">
-                <button id="bgm-toggle">SOUND: OFF</button>
+            <div class="progress-bar" aria-hidden="true">
+                <div class="progress-fill" id="progress-fill"></div>
             </div>
-        </div>
-        
-        <div class="main-display">
-            <div class="scene-view">
-                <div class="location-icon" id="location-icon">🚶</div>
-            </div>
-            
-            <div class="message-window" id="message-window">
-                <div class="location-label" id="location-name">タイキチュウ...</div>
-                <div class="story-text" id="story-text">
-                    ロード カンリョウ。<br>
-                    GAME START ヲ オシテ クダサイ。
-                </div>
-            </div>
+        </header>
+
+        <div class="scene-view">
+            <canvas id="scene-canvas" width="256" height="144" aria-label="場面"></canvas>
         </div>
 
-        <div class="choices-container" id="choices">
-            <button class="choice-btn" id="start-btn">GAME START</button>
+        <div class="message-window" id="message-window">
+            <div class="location-label" id="location-name">タイキチュウ</div>
+            <div class="story-text" id="story-text">ロード カンリョウ。
+GAME START ヲ オシテ クダサイ。</div>
         </div>
-        
-        <div class="progress-bar">
-            <div class="progress-fill" id="progress-fill"></div>
-        </div>
-        
+
+        <div class="choices-container" id="choices" data-scrollable></div>
+
         <div class="treasure-popup" id="treasure-popup">
             <div class="popup-border">
-                <div class="treasure-icon" id="treasure-icon">🔍</div>
+                <div class="treasure-icon" id="treasure-icon">*</div>
                 <div class="treasure-text" id="treasure-text">GET!</div>
             </div>
         </div>
     </div>
 
     <audio id="bgm-audio" src="tantei.mp3" preload="auto" loop playsinline></audio>
+    <script src="scenes-art.js"></script>
+    <script src="story.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
