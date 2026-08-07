@@ -35,11 +35,11 @@ const Items = {
 const Scenes = {
     title: {
         name: 'タイトル',
-        text: 'ロード カンリョウ。\nサンポ ノ トチュウ、チイサナ ジケン ガ ハジマル。\nコマンド ヲ エラベ。',
+        text: 'サンポ ノ トチュウ、チイサナ ジケン ガ ハジマル。\nコマンド ヲ エラベ。',
         choices: [
             { text: 'GAME START', act: 'start' },
             { text: 'ソウサ ノ ヒント', act: 'move', to: 'title_hint' },
-            { text: 'クレジット', act: 'move', to: 'title_credits' }
+            { text: 'スタッフ', act: 'move', to: 'title_credits' }
         ]
     },
     title_hint: {
@@ -48,12 +48,12 @@ const Scenes = {
         choices: [
             { text: 'GAME START', act: 'start' },
             { text: 'タイトル ヘ', act: 'move', to: 'title' },
-            { text: 'クレジット', act: 'move', to: 'title_credits' }
+            { text: 'スタッフ', act: 'move', to: 'title_credits' }
         ]
     },
     title_credits: {
-        name: 'クレジット',
-        text: 'サンポチュウ ノ ジケンボ\nポートピア フウ タンテイ ADV\nTitans Game Lab',
+        name: 'スタッフ',
+        text: 'サンポチュウ ノ ジケンボ\nレトロ タンテイ ADV\nTitans Game Lab',
         choices: [
             { text: 'GAME START', act: 'start' },
             { text: 'ヒント ヲ ミル', act: 'move', to: 'title_hint' },
@@ -795,7 +795,7 @@ const Scenes = {
         choices: [
             { text: 'THE END', act: 'reset' },
             { text: 'モウ イチド', act: 'start' },
-            { text: 'クレジット', act: 'move', to: 'title_credits' }
+            { text: 'スタッフ', act: 'move', to: 'title_credits' }
         ]
     },
     epilogue_hardboiled: {
@@ -804,7 +804,7 @@ const Scenes = {
         choices: [
             { text: '■ FIN ■', act: 'reset' },
             { text: 'モウ イチド', act: 'start' },
-            { text: 'クレジット', act: 'move', to: 'title_credits' }
+            { text: 'スタッフ', act: 'move', to: 'title_credits' }
         ]
     },
     epilogue_police: {
@@ -813,7 +813,7 @@ const Scenes = {
         choices: [
             { text: '■ FIN ■', act: 'reset' },
             { text: 'モウ イチド', act: 'start' },
-            { text: 'クレジット', act: 'move', to: 'title_credits' }
+            { text: 'スタッフ', act: 'move', to: 'title_credits' }
         ]
     },
     epilogue_reiko: {
@@ -822,7 +822,7 @@ const Scenes = {
         choices: [
             { text: '■ FIN ■', act: 'reset' },
             { text: 'モウ イチド', act: 'start' },
-            { text: 'クレジット', act: 'move', to: 'title_credits' }
+            { text: 'スタッフ', act: 'move', to: 'title_credits' }
         ]
     },
     epilogue_cat: {
@@ -831,7 +831,7 @@ const Scenes = {
         choices: [
             { text: 'THE END', act: 'reset' },
             { text: 'モウ イチド', act: 'start' },
-            { text: 'クレジット', act: 'move', to: 'title_credits' }
+            { text: 'スタッフ', act: 'move', to: 'title_credits' }
         ]
     }
 };

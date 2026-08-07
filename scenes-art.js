@@ -94,51 +94,77 @@ const SceneArt = (() => {
     function person(px, py, shirt, hat) {
         // 主人公（ネコより大きく見えるサイズ）
         // 頭
-        fill(C.skin, px + 3, py - 30, 8, 8);
-        fill(C.dgray, px + 3, py - 32, 8, 3); // 髪
-        if (hat) fill(hat, px + 2, py - 34, 10, 4);
+        fill(C.skin, px + 4, py - 36, 10, 10);
+        fill(C.dgray, px + 4, py - 39, 10, 4); // 髪
+        if (hat) fill(hat, px + 2, py - 41, 12, 5);
         // 胴
-        fill(shirt || C.blue, px + 2, py - 22, 10, 12);
-        fill(C.cyan, px + 4, py - 18, 6, 3);
+        fill(shirt || C.blue, px + 2, py - 27, 12, 14);
+        fill(C.cyan, px + 5, py - 22, 7, 4);
         // 腕
-        fill(C.skin, px - 1, py - 20, 3, 8);
-        fill(C.skin, px + 12, py - 20, 3, 8);
+        fill(C.skin, px - 1, py - 24, 4, 10);
+        fill(C.skin, px + 13, py - 24, 4, 10);
         // 脚
-        fill(C.blue, px + 2, py - 10, 4, 10);
-        fill(C.blue, px + 8, py - 10, 4, 10);
+        fill(C.blue, px + 2, py - 12, 5, 12);
+        fill(C.blue, px + 9, py - 12, 5, 12);
         // 靴
-        fill(C.black, px + 1, py, 5, 3);
-        fill(C.black, px + 8, py, 5, 3);
+        fill(C.black, px + 1, py, 6, 4);
+        fill(C.black, px + 9, py, 6, 4);
+    }
+
+    /** 警官（制帽・バッジ・濃い制服） */
+    function officer(px, py) {
+        // 制帽
+        fill(C.dgray, px + 1, py - 43, 14, 5);
+        fill(C.blue, px + 2, py - 41, 12, 5);
+        fill(C.yellow, px + 6, py - 40, 5, 2); // 前章
+        // 頭
+        fill(C.skin, px + 4, py - 36, 10, 10);
+        // 胴（濃紺）
+        fill(C.night, px + 2, py - 27, 12, 14);
+        fill(C.blue, px + 4, py - 25, 10, 12);
+        // バッジ
+        fill(C.yellow, px + 11, py - 22, 4, 4);
+        // 腕
+        fill(C.blue, px - 1, py - 24, 4, 10);
+        fill(C.blue, px + 13, py - 24, 4, 10);
+        fill(C.skin, px - 1, py - 17, 4, 4);
+        fill(C.skin, px + 13, py - 17, 4, 4);
+        // 脚（濃いズボン）
+        fill(C.night, px + 2, py - 12, 5, 12);
+        fill(C.night, px + 9, py - 12, 5, 12);
+        // 靴
+        fill(C.black, px + 1, py, 6, 4);
+        fill(C.black, px + 9, py, 6, 4);
     }
 
     function cat(cx, cy) {
         // 小さな座りネコ（短耳・人間より低く小さく）
         // 胴（横長）
-        fill(C.orange, cx, cy - 8, 14, 8);
-        fill(C.sand, cx + 3, cy - 5, 8, 4);
+        fill(C.orange, cx, cy - 10, 17, 10);
+        fill(C.sand, cx + 4, cy - 6, 10, 5);
         // 頭（丸く小さめ）
-        fill(C.orange, cx + 1, cy - 14, 10, 8);
-        fill(C.sand, cx + 3, cy - 11, 6, 4);
+        fill(C.orange, cx + 1, cy - 17, 12, 10);
+        fill(C.sand, cx + 4, cy - 13, 7, 5);
         // 短耳（うさぎ耳にしない：高さ2〜3px）
-        fill(C.orange, cx + 2, cy - 17, 3, 3);
-        fill(C.orange, cx + 8, cy - 17, 3, 3);
-        fill(C.pink, cx + 3, cy - 16, 1, 1);
-        fill(C.pink, cx + 9, cy - 16, 1, 1);
+        fill(C.orange, cx + 2, cy - 21, 4, 4);
+        fill(C.orange, cx + 10, cy - 21, 4, 4);
+        fill(C.pink, cx + 4, cy - 19, 1, 1);
+        fill(C.pink, cx + 11, cy - 19, 1, 1);
         // 目・鼻
-        fill(C.black, cx + 3, cy - 12, 2, 2);
-        fill(C.black, cx + 8, cy - 12, 2, 2);
-        fill(C.white, cx + 3, cy - 12, 1, 1);
-        fill(C.white, cx + 8, cy - 12, 1, 1);
-        fill(C.pink, cx + 5, cy - 9, 2, 1);
+        fill(C.black, cx + 4, cy - 15, 2, 2);
+        fill(C.black, cx + 10, cy - 15, 2, 2);
+        fill(C.white, cx + 4, cy - 15, 1, 1);
+        fill(C.white, cx + 10, cy - 15, 1, 1);
+        fill(C.pink, cx + 6, cy - 11, 2, 1);
         // ひげ（短く）
-        fill(C.white, cx - 2, cy - 10, 3, 1);
-        fill(C.white, cx + 11, cy - 10, 3, 1);
+        fill(C.white, cx - 2, cy - 12, 4, 1);
+        fill(C.white, cx + 13, cy - 12, 4, 1);
         // 前足
-        fill(C.sand, cx + 3, cy - 2, 3, 3);
-        fill(C.sand, cx + 8, cy - 2, 3, 3);
+        fill(C.sand, cx + 4, cy - 2, 4, 4);
+        fill(C.sand, cx + 10, cy - 2, 4, 4);
         // しっぽ（横へ低くカーブ＝ネコ）
-        fill(C.orange, cx + 13, cy - 6, 5, 2);
-        fill(C.orange, cx + 16, cy - 9, 2, 4);
+        fill(C.orange, cx + 16, cy - 7, 6, 2);
+        fill(C.orange, cx + 20, cy - 11, 2, 5);
     }
 
     function leafCluster(x, y, w, h) {
@@ -201,39 +227,39 @@ const SceneArt = (() => {
     }
 
     function car(cx, cy, body) {
-        fill(body, cx, cy - 10, 36, 10);
-        fill(body, cx + 6, cy - 18, 22, 8);
-        fill(C.cyan, cx + 10, cy - 16, 6, 5);
-        fill(C.cyan, cx + 18, cy - 16, 6, 5);
-        fill(C.black, cx + 4, cy - 2, 8, 4);
-        fill(C.black, cx + 24, cy - 2, 8, 4);
-        fill(C.red, cx + 34, cy - 8, 3, 3);
+        fill(body, cx, cy - 12, 43, 12);
+        fill(body, cx + 7, cy - 22, 26, 10);
+        fill(C.cyan, cx + 12, cy - 19, 7, 6);
+        fill(C.cyan, cx + 22, cy - 19, 7, 6);
+        fill(C.black, cx + 5, cy - 2, 10, 5);
+        fill(C.black, cx + 29, cy - 2, 10, 5);
+        fill(C.red, cx + 41, cy - 10, 4, 4);
     }
 
     /** パトカー（サイレンは屋根中央に左右対称） */
     function policeCar(cx, cy) {
         // 車体
-        fill(C.white, cx, cy - 10, 40, 10);
-        fill(C.dgray, cx + 2, cy - 6, 36, 3); // 黒帯
-        fill(C.white, cx + 4, cy - 5, 8, 1);
-        fill(C.white, cx + 28, cy - 5, 8, 1);
+        fill(C.white, cx, cy - 12, 48, 12);
+        fill(C.dgray, cx + 2, cy - 7, 43, 4); // 黒帯
+        fill(C.white, cx + 5, cy - 6, 10, 1);
+        fill(C.white, cx + 34, cy - 6, 10, 1);
         // キャビン（中央寄せ）
-        fill(C.white, cx + 8, cy - 18, 24, 8);
-        fill(C.cyan, cx + 10, cy - 16, 8, 5);
-        fill(C.cyan, cx + 20, cy - 16, 8, 5);
-        fill(C.dgray, cx + 18, cy - 16, 2, 5); // 柱
+        fill(C.white, cx + 10, cy - 22, 29, 10);
+        fill(C.cyan, cx + 12, cy - 19, 10, 6);
+        fill(C.cyan, cx + 24, cy - 19, 10, 6);
+        fill(C.dgray, cx + 22, cy - 19, 2, 6); // 柱
         // サイレンバー（屋根ど真ん中・赤｜青）
-        fill(C.black, cx + 14, cy - 22, 12, 4);
-        fill(C.red, cx + 15, cy - 21, 5, 2);
-        fill(C.blue, cx + 20, cy - 21, 5, 2);
+        fill(C.black, cx + 17, cy - 27, 14, 5);
+        fill(C.red, cx + 18, cy - 25, 6, 2);
+        fill(C.blue, cx + 24, cy - 25, 6, 2);
         // タイヤ
-        fill(C.black, cx + 4, cy - 2, 8, 4);
-        fill(C.black, cx + 28, cy - 2, 8, 4);
-        fill(C.gray, cx + 6, cy - 1, 4, 2);
-        fill(C.gray, cx + 30, cy - 1, 4, 2);
+        fill(C.black, cx + 5, cy - 2, 10, 5);
+        fill(C.black, cx + 34, cy - 2, 10, 5);
+        fill(C.gray, cx + 7, cy - 1, 5, 2);
+        fill(C.gray, cx + 36, cy - 1, 5, 2);
         // ライト
-        fill(C.yellow, cx, cy - 8, 3, 3);
-        fill(C.red, cx + 37, cy - 8, 3, 3);
+        fill(C.yellow, cx, cy - 10, 4, 4);
+        fill(C.red, cx + 44, cy - 10, 4, 4);
     }
 
     function skyDay() {
@@ -300,10 +326,30 @@ const SceneArt = (() => {
         fill(C.sand, 110, 100, 36, 44);
         fill(C.brown, 112, 100, 32, 44);
         person(116, 126, C.blue, C.dgray);
-        // title plate
-        fill(C.black, 48, 28, 160, 28);
-        fill(C.white, 50, 30, 156, 24);
-        fill(C.black, 54, 34, 148, 16);
+        // title plate（右上・バーンと）
+        fill(C.white, 72, 6, 176, 54);
+        fill(C.black, 76, 10, 168, 46);
+        fill(C.blue, 80, 14, 160, 38);
+        fill(C.black, 84, 18, 152, 30);
+        ctx.save();
+        ctx.imageSmoothingEnabled = false;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const tx = 160;
+        const drawOutlined = (text, y, size, color) => {
+            ctx.font = `bold ${size}px "DotGothic16", monospace`;
+            ctx.fillStyle = C.black;
+            for (let ox = -1; ox <= 1; ox++) {
+                for (let oy = -1; oy <= 1; oy++) {
+                    if (ox || oy) ctx.fillText(text, tx + ox, y + oy);
+                }
+            }
+            ctx.fillStyle = color;
+            ctx.fillText(text, tx, y);
+        };
+        drawOutlined('サンポチュウ ノ', 28, 12, C.yellow);
+        drawOutlined('ジケンボ', 42, 14, C.orange);
+        ctx.restore();
     }
 
     function drawPark(opts) {
@@ -402,7 +448,11 @@ const SceneArt = (() => {
             fill(C.black, 172, 110, 2, 2);
             fill(C.black, 178, 110, 2, 2);
         } else {
-            fill(C.dgray, 166, 108, 12, 6);
+            // 寝ている犬
+            fill(C.brown, 162, 110, 20, 8);
+            fill(C.sand, 165, 107, 14, 4);
+            fill(C.black, 172, 108, 2, 1);
+            fill(C.black, 178, 108, 2, 1);
         }
         // shed hint
         fill(C.dbrown, 210, 80, 40, 40);
@@ -416,19 +466,36 @@ const SceneArt = (() => {
 
     function drawShed() {
         fill(C.dbrown, 0, 0, W, H);
-        // shelves
-        fill(C.brown, 20, 30, 80, 8);
-        fill(C.brown, 20, 60, 80, 8);
-        fill(C.brown, 20, 90, 80, 8);
-        fill(C.gray, 30, 38, 12, 18);
-        fill(C.gray, 55, 68, 16, 14);
-        fill(C.yellow, 160, 70, 20, 4);
-        fill(C.gray, 158, 74, 24, 30);
-        // wire highlight
-        fill(C.cyan, 170, 100, 30, 2);
-        fill(C.cyan, 175, 102, 2, 12);
-        // light shaft
-        dither(C.yellow, C.dbrown, 100, 0, 40, 60);
+        // 上部：戸棚・棚
+        fill(C.brown, 10, 20, 90, 6);
+        fill(C.brown, 130, 20, 90, 6);
+        // 棚の上の荷物
+        fill(C.gray, 20, 12, 14, 8);
+        fill(C.gray, 40, 14, 12, 6);
+        fill(C.red, 60, 10, 10, 10);
+        fill(C.yellow, 75, 12, 14, 8);
+        fill(C.gray, 140, 10, 16, 10);
+        fill(C.brown, 165, 12, 18, 8);
+        // 中段：棚
+        fill(C.brown, 10, 60, 90, 6);
+        fill(C.brown, 130, 60, 90, 6);
+        fill(C.gray, 25, 50, 16, 10);
+        fill(C.gray, 50, 48, 12, 12);
+        fill(C.yellow, 70, 52, 8, 8);
+        fill(C.gray, 145, 50, 20, 10);
+        fill(C.gray, 180, 48, 14, 12);
+        // 下段：棚
+        fill(C.brown, 10, 100, 90, 6);
+        fill(C.brown, 130, 100, 90, 6);
+        fill(C.gray, 30, 85, 18, 15);
+        fill(C.gray, 55, 82, 20, 18);
+        fill(C.gray, 150, 84, 16, 16);
+        fill(C.gray, 175, 80, 22, 20);
+        // 窓と光
+        fill(C.yellow, 160, 25, 18, 12);
+        fill(C.cyan, 165, 30, 8, 3);
+        // 光が差す
+        dither(C.yellow, C.dbrown, 165, 0, 50, 70);
         person(120, 130, C.blue, null);
     }
 

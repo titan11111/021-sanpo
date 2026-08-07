@@ -369,6 +369,13 @@ function showScene(sceneId) {
     const scene = Scenes[sceneId];
     if (!scene) return;
 
+    const container = document.getElementById('game-container');
+    if (sceneId === 'title' || sceneId === 'title_hint' || sceneId === 'title_credits') {
+        container.classList.add('is-title-screen');
+    } else {
+        container.classList.remove('is-title-screen');
+    }
+
     document.getElementById('location-name').textContent = scene.name;
     SceneArt.draw(sceneId);
 
