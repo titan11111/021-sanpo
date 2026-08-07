@@ -206,7 +206,7 @@ const Scenes = {
         choices: [
             { text: 'ゴウテイ マエ ヘ', act: 'move', to: 'mansion_front' },
             { text: 'ウラミチ カラ', act: 'move', to: 'mansion_back' },
-            { text: 'ヒトゴエ ニ チカヨル', act: 'move', to: 'mansion_front' }
+            { text: 'ヒトゴミ ニ チカヨル', act: 'move', to: 'mansion_front' }
         ]
     },
     night_alley_exit: {
