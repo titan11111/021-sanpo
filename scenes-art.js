@@ -355,39 +355,30 @@ const SceneArt = (() => {
 
     /* --- scenes --- */
     function drawTitle() {
-        skyDusk();
-        groundGrass(95);
-        tree(30, 120, true);
-        tree(210, 118, false);
-        bush(90, 118);
-        bush(150, 120);
-        // walking path
-        fill(C.sand, 110, 100, 36, 44);
-        fill(C.brown, 112, 100, 32, 44);
-        person(116, 126, C.blue, C.dgray);
-        // title plate（右上・バーンと）
-        fill(C.white, 72, 6, 176, 54);
-        fill(C.black, 76, 10, 168, 46);
-        fill(C.blue, 80, 14, 160, 38);
-        fill(C.black, 84, 18, 152, 30);
+        // ミニマリスト＆インパクト重視：純黒背景
+        fill(C.black, 0, 0, W, H);
+
         ctx.save();
         ctx.imageSmoothingEnabled = false;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        const tx = 160;
-        const drawOutlined = (text, y, size, color) => {
-            ctx.font = `bold ${size}px "DotGothic16", monospace`;
-            ctx.fillStyle = C.black;
-            for (let ox = -1; ox <= 1; ox++) {
-                for (let oy = -1; oy <= 1; oy++) {
-                    if (ox || oy) ctx.fillText(text, tx + ox, y + oy);
-                }
+
+        // タイトル（中央に大きく）
+        ctx.font = `bold 18px "DotGothic16", monospace`;
+        ctx.fillStyle = C.black;
+        for (let ox = -2; ox <= 2; ox++) {
+            for (let oy = -2; oy <= 2; oy++) {
+                if (ox || oy) ctx.fillText('サンポチュウ ノ ジケンボ', 128 + ox, 50 + oy);
             }
-            ctx.fillStyle = color;
-            ctx.fillText(text, tx, y);
-        };
-        drawOutlined('サンポチュウ ノ', 28, 12, C.yellow);
-        drawOutlined('ジケンボ', 42, 14, C.orange);
+        }
+        ctx.fillStyle = C.yellow;
+        ctx.fillText('サンポチュウ ノ ジケンボ', 128, 50);
+
+        // PRESS START指示
+        ctx.font = `bold 10px "DotGothic16", monospace`;
+        ctx.fillStyle = C.cyan;
+        ctx.fillText('▼ PRESS START ▼', 128, 90);
+
         ctx.restore();
     }
 
