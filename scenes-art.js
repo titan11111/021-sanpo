@@ -137,6 +137,38 @@ const SceneArt = (() => {
         fill(C.black, px + 9, py, 6, 4);
     }
 
+    /** 刑事（トレンチコート・帽子・厳しい表情） */
+    function detective(dx, dy) {
+        // 帽子（ハット・広つば）
+        fill(C.dgray, dx - 2, dy - 40, 16, 3);
+        fill(C.dgray, dx - 1, dy - 38, 14, 3);
+        fill(C.dgray, dx, dy - 37, 12, 1);
+        // 顔（厳しい目元）
+        fill(C.skin, dx + 3, dy - 35, 10, 10);
+        fill(C.black, dx + 5, dy - 33, 2, 2);
+        fill(C.black, dx + 9, dy - 33, 2, 2);
+        fill(C.white, dx + 5, dy - 33, 1, 1);
+        fill(C.white, dx + 9, dy - 33, 1, 1);
+        fill(C.black, dx + 7, dy - 29, 2, 1); // 眉間のしわ
+        // トレンチコート（濃紺・大きめ）
+        fill(C.night, dx + 1, dy - 25, 12, 16);
+        fill(C.dgray, dx, dy - 24, 14, 14); // 襟
+        fill(C.yellow, dx + 5, dy - 20, 4, 2); // ボタン
+        // 首
+        fill(C.skin, dx + 5, dy - 26, 4, 2);
+        // 腕（手を握り拳）
+        fill(C.dgray, dx - 2, dy - 20, 3, 10);
+        fill(C.dgray, dx + 12, dy - 20, 3, 10);
+        fill(C.black, dx - 2, dy - 10, 3, 2); // こぶし
+        fill(C.black, dx + 12, dy - 10, 3, 2);
+        // 脚（ズボン：濃紺）
+        fill(C.night, dx + 3, dy - 9, 4, 10);
+        fill(C.night, dx + 8, dy - 9, 4, 10);
+        // 靴（黒・大きめ）
+        fill(C.black, dx + 2, dy, 6, 4);
+        fill(C.black, dx + 7, dy, 6, 4);
+    }
+
     function cat(cx, cy) {
         // 小さな座りネコ（短耳・人間より低く小さく）
         // 胴（横長）
@@ -264,10 +296,17 @@ const SceneArt = (() => {
 
     function skyDay() {
         fill(C.sky, 0, 0, W, 90);
+        // 雲（左上）- ふんわりした雲の表現
+        fill(C.white, 10, 15, 20, 8);
+        fill(C.white, 25, 10, 24, 10);
+        fill(C.white, 45, 16, 16, 6);
+        // 雲（左中央）
         fill(C.white, 30, 12, 28, 10);
         fill(C.white, 40, 8, 18, 8);
+        // 雲（右上）
         fill(C.white, 160, 18, 36, 12);
         fill(C.white, 172, 14, 20, 8);
+        // 太陽
         fill(C.yellow, 220, 10, 14, 14);
         fill(C.sand, 222, 12, 10, 10);
     }
@@ -523,6 +562,9 @@ const SceneArt = (() => {
         fill(C.dred, 190, 40, 28, 24);
         fill(C.orange, 194, 44, 20, 16);
         person(130, 125, C.blue, null);
+        if (opts.detective) {
+            detective(40, 125);
+        }
     }
 
     function drawDining() {
@@ -881,6 +923,7 @@ const SceneArt = (() => {
         shed: drawShed,
         hall: () => drawHall({}),
         hall_locked: () => drawHall({ locked: true }),
+        hall_detective: () => drawHall({ detective: true }),
         dining: drawDining,
         study: drawStudy,
         town: drawTown,
